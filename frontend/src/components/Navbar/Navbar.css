@@ -1,0 +1,96 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  height: 80px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  position: sticky; /* Keeps navbar at top when scrolling */
+  top: 0;
+  z-index: 1000;
+}
+
+.logo-container img {
+  height: 50px;
+  object-fit: contain;
+}
+
+/* Navigation */
+.nav-menu {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-item {
+  position: relative;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 15px 0;
+  cursor: pointer;
+}
+
+.nav-item a, .nav-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s;
+}
+
+.nav-item:hover > a, 
+.nav-item:hover > .nav-label {
+  color: #fca311;
+}
+
+/* Dropdown Menu */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: -10px;
+  background-color: white;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+/* Show Dropdown on Hover */
+.nav-item:hover .dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item a {
+  display: block;
+  padding: 10px 20px;
+  color: #444;
+  font-size: 14px;
+}
+
+.dropdown-item a:hover {
+  background-color: #fff8e1;
+  color: #fca311;
+}
+
+/* Icons */
+.nav-icons {
+  display: flex;
+  gap: 20px;
+  font-size: 20px;
+  color: #333;
+}
+
+.icon {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.icon:hover {
+  transform: scale(1.1);
+}
