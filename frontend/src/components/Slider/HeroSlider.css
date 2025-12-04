@@ -46,3 +46,22 @@
 .slide-content button:hover {
   background-color: #e59400;
 }
+
+/* frontend/src/components/Slider/HeroSlider.css */
+.slider-wrapper {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.slide {
+  position: relative;
+  height: 500px; /* Force a height */
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures image covers the area without distortion */
+  display: block;    /* Removes bottom gap */
+}
