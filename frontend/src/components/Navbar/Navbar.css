@@ -1,9 +1,9 @@
 .header {
   display: flex;
-  justify-content: space-between; /* Pushes Logo left, Icons right */
+  justify-content: space-between;
   align-items: center;
   padding: 0 40px;
-  height: 90px; /* Slightly taller to accommodate logo */
+  height: 90px;
   background-color: #ffffff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   position: sticky;
@@ -12,9 +12,8 @@
   font-family: 'Roboto', sans-serif;
 }
 
-/* Logo */
 .logo-container img {
-  height: 60px; /* Adjust based on your actual logo file */
+  height: 60px;
   object-fit: contain;
   display: block;
 }
@@ -23,7 +22,7 @@
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 30px; /* Space between menu items */
+  gap: 30px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -33,9 +32,9 @@
   position: relative;
   font-weight: 500;
   font-size: 16px;
-  color: #000; /* Black text */
+  color: #000;
   cursor: pointer;
-  height: 90px; /* Match header height for centering */
+  height: 90px;
   display: flex;
   align-items: center;
 }
@@ -46,11 +45,10 @@
   transition: color 0.2s ease;
 }
 
-/* Label span for items with dropdowns */
 .nav-label {
   display: flex;
   align-items: center;
-  gap: 6px; /* Space between text and chevron */
+  gap: 6px;
 }
 
 .arrow-icon {
@@ -58,15 +56,14 @@
   color: #333;
 }
 
-/* Hover Effects */
 .nav-item:hover {
-  color: #fca311; /* Or the yellow color from the logo */
+  color: #fca311;
 }
 
-/* Dropdown Menu */
+/* Dropdown Menu (Kept for Product Menus only) */
 .dropdown {
   position: absolute;
-  top: 80px; /* Just below the header */
+  top: 80px;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   background-color: white;
@@ -103,7 +100,7 @@
 .nav-icons {
   display: flex;
   align-items: center;
-  gap: 25px; /* Spacing between icons */
+  gap: 25px;
   color: #000;
 }
 
@@ -113,22 +110,32 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.2s;
+  height: 90px; 
 }
 
+/* Only scale icons on hover, disabled for text items via inline style in JS */
 .icon-item:hover {
   transform: scale(1.1);
 }
 
-/* Cart Badge Styling */
+/* New style for the user greeting text */
+.user-greeting {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* Cart Badge */
 .cart-container {
   position: relative;
 }
 
 .cart-badge {
   position: absolute;
-  top: -8px;
+  top: 24px; 
   right: -8px;
-  background-color: #e57373; /* Pinkish-red color from image */
+  background-color: #e57373;
   color: white;
   font-size: 11px;
   font-weight: bold;
@@ -138,5 +145,5 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid white; /* Small white border around circle */
+  border: 2px solid white;
 }

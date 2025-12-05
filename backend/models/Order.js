@@ -1,10 +1,19 @@
 import mongoose from 'mongoose';
 
+// Define a schema for shipping address including phone for contact
+const shippingAddressSchema = mongoose.Schema({
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+    phone: { type: String, required: true }, // <-- Storing phone on the order document for immutable shipping contact
+});
+
 const orderSchema = mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: false,
+    required: true, // <-- Enforces that a user must be logged in
   },
   orderItems: [
     {
@@ -19,6 +28,15 @@ const orderSchema = mongoose.Schema({
       },
     },
   ],
+  shippingAddress: { // <-- New: Shipping address details
+    type: shippingAddressSchema,
+    required: true,
+  },
+  paymentMethod: { // <-- New: Payment method selection
+    type: String,
+    required: true,
+    enum: ['Cash on Delivery', 'UPI'], // Restrict to requested options
+  },
   totalPrice: {
     type: Number,
     required: true,
@@ -29,6 +47,9 @@ const orderSchema = mongoose.Schema({
     required: true,
     default: false,
   },
+  paidAt: { // Optional: useful for recording payment time for UPI
+      type: Date,
+  }
 }, {
   timestamps: true,
 });

@@ -4,6 +4,7 @@ import {
   registerUser,
   logoutUser,
   getUserProfile,
+  updateUserProfile, // Import the new controller
 } from '../controllers/authController.js';
 
 const router = express.Router();
@@ -11,6 +12,8 @@ const router = express.Router();
 router.post('/', registerUser);
 router.post('/login', authUser);
 router.post('/logout', logoutUser);
-router.get('/profile', getUserProfile);
+router.route('/profile')
+  .get(getUserProfile)
+  .put(updateUserProfile); // Add PUT request handling
 
 export default router;

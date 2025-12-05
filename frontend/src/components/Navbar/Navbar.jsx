@@ -1,78 +1,82 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaChevronDown, FaSearch, FaUser, FaHeart, FaShoppingBag } from 'react-icons/fa';
-import { useCart } from '../../context/CartContext'; // Import Context
+import { Link, useNavigate } from 'react-router-dom';
+import { FaChevronDown, FaSearch, FaUser, FaHeart, FaShoppingBag, FaSignOutAlt } from 'react-icons/fa';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css'; 
 
 const Navbar = () => {
-  const { cartCount } = useCart(); // Get live count
+  const { cartCount } = useCart();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="header">
-      {/* 1. Logo Section */}
       <div className="logo-container">
         <Link to="/">
           <img src="/Images/logo.jpg" alt="TCG Republic Logo" />
         </Link>
       </div>
 
-      {/* 2. Navigation Menu */}
       <nav>
         <ul className="nav-menu">
-          <li className="nav-item">
-            <Link to="/">Home</Link>
-          </li>
+          <li className="nav-item"><Link to="/">Home</Link></li>
           
           <li className="nav-item dropdown-trigger">
             <span className="nav-label">Pokemon TCG <FaChevronDown className="arrow-icon"/></span>
             <ul className="dropdown">
               <li className="dropdown-item"><Link to="/pokemon-tcg">All Products</Link></li>
-              {/* Add more links as needed */}
             </ul>
           </li>
 
-          <li className="nav-item">
-            <Link to="/supplies">Supplies</Link>
-          </li>
-
-          <li className="nav-item dropdown-trigger">
-            <span className="nav-label">Other TCG <FaChevronDown className="arrow-icon"/></span>
-            <ul className="dropdown">
-              <li className="dropdown-item"><Link to="/other-tcg/one-piece">One Piece</Link></li>
-            </ul>
-          </li>
-
-          <li className="nav-item">
-             <Link to="/sports">Sports</Link>
-          </li>
-
-          <li className="nav-item dropdown-trigger">
-            <span className="nav-label">Figurine <FaChevronDown className="arrow-icon"/></span>
-            <ul className="dropdown">
-               <li className="dropdown-item"><Link to="/figurine/anime">Anime</Link></li>
-            </ul>
-          </li>
-
-          <li className="nav-item">
-            <Link to="/track-order">Track Order</Link>
-          </li>
+          <li className="nav-item"><Link to="/supplies">Supplies</Link></li>
+          <li className="nav-item"><Link to="/track-order">Track Order</Link></li>
         </ul>
       </nav>
 
-      {/* 3. Icons Section */}
       <div className="nav-icons">
         <div className="icon-item">
             <FaSearch size={18} />
         </div>
-        <div className="icon-item">
+        
+        {/* --- MODIFIED AUTH SECTION --- */}
+        {user ? (
+          <>
+            {/* 1. User Greeting */}
+            <div className="icon-item" style={{ cursor: 'default', transform: 'none' }}>
+               <span className="user-greeting">
+                 Hi, {user.name.split(' ')[0]}
+               </span>
+            </div>
+
+            {/* 2. Profile Icon Link (NEW) */}
+            <Link to="/profile" className="icon-item" title="My Profile">
+               <FaUser size={18} />
+            </Link>
+            
+            {/* 3. Logout Button */}
+            <div className="icon-item" onClick={handleLogout} title="Logout">
+               <FaSignOutAlt size={18} />
+            </div>
+          </>
+        ) : (
+          <Link to="/login" className="icon-item">
             <FaUser size={18} />
-        </div>
+          </Link>
+        )}
+        {/* ----------------------------- */}
+
         <div className="icon-item">
             <FaHeart size={18} />
         </div>
+        
         <Link to="/cart" className="icon-item cart-container" style={{ color: 'inherit' }}>
             <FaShoppingBag size={18} />
-            {/* Conditionally render badge if count > 0 */}
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
         </Link>
       </div>

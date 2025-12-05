@@ -84,10 +84,68 @@ const logoutUser = (req, res) => {
 // @access  Private
 const getUserProfile = async (req, res) => {
   if (req.session.user) {
-    res.json(req.session.user);
+    // Fetch fresh data from DB to ensure we have the phone number
+    const user = await User.findById(req.session.user._id);
+    
+    if (user) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '', // Return phone (or empty string if null)
+        isAdmin: user.isAdmin,
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
   } else {
     res.status(401).json({ message: 'Not authorized, no session' });
   }
 };
 
-export { authUser, registerUser, logoutUser, getUserProfile };
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = async (req, res) => {
+  const sessionUser = req.session.user;
+
+  if (!sessionUser) {
+    res.status(401).json({ message: 'Not authorized, please log in' });
+    return;
+  }
+
+  const user = await User.findById(sessionUser._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone; // Update Phone
+    
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    // Update the session with new info
+    req.session.user = {
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+      phone: updatedUser.phone,
+    };
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      isAdmin: updatedUser.isAdmin,
+    });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+};
+
+export { authUser, registerUser, logoutUser, getUserProfile, updateUserProfile }

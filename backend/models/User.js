@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phone: { // <-- New: Phone number field
+    type: String,
+    required: false, // You might want to make this 'true' later or enforce pre-order validation
+  },
   isAdmin: {
     type: Boolean,
     default: false,
