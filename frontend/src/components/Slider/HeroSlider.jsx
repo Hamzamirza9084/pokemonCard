@@ -19,7 +19,7 @@ const HeroSlider = () => {
     autoplay: true,
     autoplaySpeed: 3000,
     arrows: true,
-    // Maintaining the layout fix
+
     className: "center",
     centerMode: false, 
   };

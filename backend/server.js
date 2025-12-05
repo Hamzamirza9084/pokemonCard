@@ -6,6 +6,8 @@ import MongoStore from 'connect-mongo'; // For storing sessions in MongoDB
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+// 1. IMPORT ORDER ROUTES
+import orderRoutes from './routes/orderRoutes.js';
 
 dotenv.config();
 
@@ -42,6 +44,8 @@ app.use(session({
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/users', authRoutes);
+// 2. USE ORDER ROUTES
+app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

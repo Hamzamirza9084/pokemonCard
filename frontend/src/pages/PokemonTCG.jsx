@@ -1,31 +1,51 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import api from '../api/axios';
+import ProductCard from '../components/ProductCard/ProductCard';
 
 const PokemonTCG = () => {
-  // useParams extracts the 'itemId' from the URL defined in App.jsx
-  // route: path="pokemon-tcg/:itemId"
-  const { itemId } = useParams();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // Fetching items specifically for Pokemon TCG category
+        // Alternatively, fetch all and filter on frontend if dataset is small
+        const { data } = await api.get('/products?category=Pokemon TCG');
+        setProducts(data);
+      } catch (err) {
+        console.error("Failed to fetch products", err);
+        setError("Could not load products. Is the backend running?");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) return <div style={{ padding: '40px' }}>Loading products...</div>;
+  if (error) return <div style={{ padding: '40px', color: 'red' }}>{error}</div>;
 
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1>Pokemon TCG Section</h1>
-      
-      {itemId ? (
-        <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
-          <h2 style={{ textTransform: 'capitalize' }}>You selected: {itemId.replace('-', ' ')}</h2>
-          <p>Here are the details for {itemId}...</p>
-          {/* You would fetch data from a database here using the itemId */}
-        </div>
-      ) : (
-        <p>Select an item from the menu or browse all categories below.</p>
-      )}
+      <h1>Pokemon TCG</h1>
+      <p>Browse our collection of cards and boosters.</p>
 
-      {/* Grid of generic cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginTop: '40px' }}>
-         <div style={{ height: '200px', background: '#eee' }}>Card 1</div>
-         <div style={{ height: '200px', background: '#eee' }}>Card 2</div>
-         <div style={{ height: '200px', background: '#eee' }}>Card 3</div>
-         <div style={{ height: '200px', background: '#eee' }}>Card 4</div>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', 
+        gap: '25px', 
+        marginTop: '30px' 
+      }}>
+        {products.length > 0 ? (
+          products.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))
+        ) : (
+          <p>No products found. Try running the seeder script in the backend!</p>
+        )}
       </div>
     </div>
   );
