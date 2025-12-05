@@ -15,6 +15,7 @@ const authUser = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone // Ensure phone is in session if it exists
     };
     
     res.json({
@@ -22,6 +23,7 @@ const authUser = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
@@ -32,7 +34,7 @@ const authUser = async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -45,6 +47,7 @@ const registerUser = async (req, res) => {
     name,
     email,
     password,
+    phone // Allow saving phone on registration if provided
   });
 
   if (user) {
@@ -53,6 +56,7 @@ const registerUser = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone
     };
 
     res.status(201).json({
@@ -60,6 +64,7 @@ const registerUser = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone
     });
   } else {
     res.status(400).json({ message: 'Invalid user data' });
@@ -74,29 +79,28 @@ const logoutUser = (req, res) => {
     if (err) {
       return res.status(500).json({ message: 'Could not log out' });
     }
-    res.clearCookie('connect.sid'); // Default cookie name
+    res.clearCookie('connect.sid'); 
     res.json({ message: 'Logout successful' });
   });
 };
 
-// @desc    Get user profile (check session)
+// @desc    Get user profile
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = async (req, res) => {
   if (req.session.user) {
-    // Fetch fresh data from DB to ensure we have the phone number
+    // Fetch fresh data
     const user = await User.findById(req.session.user._id);
-    
     if (user) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone || '', // Return phone (or empty string if null)
-        isAdmin: user.isAdmin,
-      });
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone || '',
+            isAdmin: user.isAdmin
+        });
     } else {
-      res.status(404).json({ message: 'User not found' });
+        res.status(404).json({ message: 'User not found' });
     }
   } else {
     res.status(401).json({ message: 'Not authorized, no session' });
@@ -119,7 +123,7 @@ const updateUserProfile = async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.phone = req.body.phone || user.phone; // Update Phone
+    user.phone = req.body.phone || user.phone; // Update phone number
     
     if (req.body.password) {
       user.password = req.body.password;
@@ -148,4 +152,23 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-export { authUser, registerUser, logoutUser, getUserProfile, updateUserProfile }
+// @desc    Get all users
+// @route   GET /api/users
+// @access  Private/Admin
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export { 
+    authUser, 
+    registerUser, 
+    logoutUser, 
+    getUserProfile, 
+    updateUserProfile, // <-- This was causing your error
+    getUsers           // <-- Required for Admin Dashboard
+};

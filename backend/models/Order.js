@@ -1,19 +1,10 @@
 import mongoose from 'mongoose';
 
-// Define a schema for shipping address including phone for contact
-const shippingAddressSchema = mongoose.Schema({
-    address: { type: String, required: true },
-    city: { type: String, required: true },
-    postalCode: { type: String, required: true },
-    country: { type: String, required: true },
-    phone: { type: String, required: true }, // <-- Storing phone on the order document for immutable shipping contact
-});
-
 const orderSchema = mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
     ref: 'User',
-    required: true, // <-- Enforces that a user must be logged in
   },
   orderItems: [
     {
@@ -23,19 +14,21 @@ const orderSchema = mongoose.Schema({
       price: { type: Number, required: true },
       product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
         required: true,
+        ref: 'Product',
       },
     },
   ],
-  shippingAddress: { // <-- New: Shipping address details
-    type: shippingAddressSchema,
-    required: true,
+  shippingAddress: {
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+    phone: { type: String, required: true },
   },
-  paymentMethod: { // <-- New: Payment method selection
+  paymentMethod: {
     type: String,
     required: true,
-    enum: ['Cash on Delivery', 'UPI'], // Restrict to requested options
   },
   totalPrice: {
     type: Number,
@@ -47,9 +40,17 @@ const orderSchema = mongoose.Schema({
     required: true,
     default: false,
   },
-  paidAt: { // Optional: useful for recording payment time for UPI
-      type: Date,
-  }
+  paidAt: {
+    type: Date,
+  },
+  isDelivered: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  deliveredAt: {
+    type: Date,
+  },
 }, {
   timestamps: true,
 });

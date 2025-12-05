@@ -1,4 +1,8 @@
 import express from 'express';
+
+import { getUsers } from '../controllers/authController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
 import {
   authUser,
   registerUser,
@@ -16,4 +20,7 @@ router.route('/profile')
   .get(getUserProfile)
   .put(updateUserProfile); // Add PUT request handling
 
+router.route('/').post(registerUser).get(protect, admin, getUsers);
+
 export default router;
+

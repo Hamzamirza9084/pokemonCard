@@ -1,55 +1,75 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Form.css'; 
+import './Form.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleSubmit = async (e) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      if (user.isAdmin) {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
+
+  const submitHandler = async (e) => {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate('/'); 
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password');
+      
+      // Immediate check after login success using localStorage 
+      // (since state update might be slightly delayed)
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      
+      if (userInfo && userInfo.isAdmin) {
+        navigate('/admin/dashboard');
+      } else {
+        const from = location.state?.from?.pathname || '/';
+        navigate(from);
+      }
+    } catch (error) {
+      alert('Invalid email or password');
     }
   };
 
   return (
     <div className="form-container">
-      <h2>Sign In</h2>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
+      <h1>Sign In</h1>
+      <form onSubmit={submitHandler}>
         <div className="form-group">
           <label>Email Address</label>
-          <input 
-            type="email" 
-            value={email} 
-            // Enforce lowercase on change
-            onChange={(e) => setEmail(e.target.value.toLowerCase())} 
-            required 
+          <input
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
         <div className="form-group">
           <label>Password</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
-        <button type="submit" className="btn-primary">Login</button>
+        <button type="submit" className="btn-primary">Sign In</button>
       </form>
-      <p className="form-footer">
+      <div className="form-footer">
         New Customer? <Link to="/register">Register</Link>
-      </p>
+      </div>
     </div>
   );
 };
