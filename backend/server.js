@@ -1,51 +1,54 @@
+import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import session from 'express-session';
-import MongoStore from 'connect-mongo'; // For storing sessions in MongoDB
+import MongoStore from 'connect-mongo';
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-// 1. IMPORT ORDER ROUTES
 import orderRoutes from './routes/orderRoutes.js';
 
 dotenv.config();
 
 connectDB();
 
-const app = express();
+// --- 1. Initialize App FIRST ---
+const app = express(); 
 
-// Middleware
-// Important: CORS must be configured to allow credentials (cookies)
+// --- 2. Configure Middleware ---
 app.use(cors({
-  origin: 'http://localhost:5173', // Your Vite Frontend URL
+  origin: 'http://localhost:5173',
   credentials: true,
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session Middleware
+// --- 3. Session Middleware ---
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secretkey123',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/pokemon_shop',
-    ttl: 14 * 24 * 60 * 60 // 14 days
+    ttl: 14 * 24 * 60 * 60 
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true if https
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 // 1 day
+    maxAge: 1000 * 60 * 60 * 24 
   }
 }));
 
-// Routes
+// --- 4. Mount Routes ---
 app.use('/api/products', productRoutes);
 app.use('/api/users', authRoutes);
-// 2. USE ORDER ROUTES
 app.use('/api/orders', orderRoutes);
+
+// --- 5. Static Uploads Folder (AFTER app is defined) ---
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.get('/', (req, res) => {
   res.send('API is running...');

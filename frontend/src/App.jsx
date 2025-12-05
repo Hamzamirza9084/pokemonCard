@@ -4,7 +4,7 @@ import { CartProvider } from './context/CartContext';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
-import AdminLayout from './layouts/AdminLayout'; // New Layout
+import AdminLayout from './layouts/AdminLayout';
 
 // Components
 import AdminRoute from './components/AdminRoute';
@@ -22,9 +22,10 @@ import NotFound from './pages/NotFound';
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductList from './pages/admin/ProductList';
-import ProductEdit from './pages/admin/ProductEdit';
 import OrderList from './pages/admin/OrderList';
 import UserList from './pages/admin/UserList';
+// We only import the ONE screen we created
+import EditProductScreen from './pages/admin/EditProductScreen';
 
 function App() {
   return (
@@ -45,13 +46,14 @@ function App() {
             </Route>
 
             {/* --- ADMIN ROUTES (With Sidebar Navbar) --- */}
-            {/* 1. Check if user is admin (AdminRoute) */}
-            {/* 2. Apply Admin Layout */}
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="productlist" element={<ProductList />} />
-                <Route path="product/:id/edit" element={<ProductEdit />} />
+                
+                {/* This is the route for editing a product */}
+                <Route path="product/:id/edit" element={<EditProductScreen />} />
+                
                 <Route path="orderlist" element={<OrderList />} />
                 <Route path="userlist" element={<UserList />} />
               </Route>

@@ -3,31 +3,12 @@ import Product from '../models/Product.js';
 // @desc    Fetch all products
 // @route   GET /api/products
 // @access  Public
-const getProducts = async (req, res) => {
-  try {
-    const products = await Product.find({});
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
+
 
 // @desc    Fetch single product
 // @route   GET /api/products/:id
 // @access  Public
-const getProductById = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
 
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({ message: 'Product not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
 
 const deleteProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
@@ -55,17 +36,55 @@ const createProduct = async (req, res) => {
 // @desc    Update a product
 // @route   PUT /api/products/:id
 // @access  Private/Admin
+
+
+const getProducts = async (req, res) => {
+  try {
+    const products = await Product.find({});
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Fetch single product
+// @route   GET /api/products/:id
+// @access  Public
+const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
 const updateProduct = async (req, res) => {
-  const { name, price, image, category, countInStock, description } = req.body;
+  const { name, price, description, brand, category, countInStock } = req.body;
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-    product.category = category;
-    product.countInStock = countInStock;
+    product.name = name || product.name;
+    product.price = price || product.price;
+    product.description = description || product.description;
+    product.brand = brand || product.brand;
+    product.category = category || product.category;
+    product.countInStock = countInStock || product.countInStock;
+
+    // Check if a file was uploaded via Multer
+    if (req.file) {
+      // Save the path relative to the server root
+      // Note: Windows uses backslashes, we replace them for URL compatibility
+      product.image = `/uploads/${req.file.filename}`;
+    }
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);

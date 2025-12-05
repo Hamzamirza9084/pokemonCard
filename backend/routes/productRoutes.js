@@ -2,21 +2,23 @@ import express from 'express';
 import { 
   getProducts, 
   getProductById, 
-  deleteProduct,
+  createProduct,
   updateProduct,
-  createProduct
+  deleteProduct
 } from '../controllers/productController.js';
-import { protect, admin } from '../middleware/authMiddleware.js'; // Import middleware
+import { protect, admin } from '../middleware/authMiddleware.js';
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
   .get(getProducts)
-  .post(protect, admin, createProduct); // Admin create
+  .post(protect, admin, createProduct);
 
 router.route('/:id')
   .get(getProductById)
-  .delete(protect, admin, deleteProduct) // Admin delete
-  .put(protect, admin, updateProduct);   // Admin update
+  .delete(protect, admin, deleteProduct)
+  // Use upload.single('image') middleware here for image uploads
+  .put(protect, admin, upload.single('image'), updateProduct);
 
 export default router;

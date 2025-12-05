@@ -13,9 +13,19 @@ const OrderList = () => {
 
   useEffect(() => { fetchOrders(); }, []);
 
-  const deliverHandler = async (id) => {
-    await api.put(`/orders/${id}/deliver`);
-    fetchOrders();
+ const deliverHandler = async (id) => {
+    try {
+      // FIX: Use 'api' instead of 'axios'
+      // FIX: Use the 'id' argument instead of 'orderId'
+      // FIX: Removed undefined 'config'
+      await api.put(`/orders/${id}/deliver`, {});
+      
+      // Refresh the list
+      fetchOrders();
+    } catch (error) {
+      console.error(error);
+      alert("Could not update delivery status");
+    }
   };
 
   return (
