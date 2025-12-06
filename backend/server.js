@@ -156,9 +156,9 @@ app.use(session({
 }));
 
 // Routes
-app.use('/api/products', productRoutes);
-app.use('/api/users', authRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/products', productRoutes);
+app.use('/users', authRoutes);
+app.use('/orders', orderRoutes);
 app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
 
 app.get('/', (req, res) => {
