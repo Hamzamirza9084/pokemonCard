@@ -12,7 +12,7 @@ const CategoryBanner = () => {
         <Link to="/collection/pokemon-tcg/booster-packs" className="category-item">
           <div className="image-wrapper">
              {/* Ensure this image exists in frontend/public/Images/ */}
-            <img src="../../../public/Images/c1.jpeg" alt="Shop Booster Packs" />
+            <img src="Images/c1.jpeg" alt="Shop Booster Packs" />
           </div>
           <div className="category-label">
             <h3>Booster Packs</h3>
@@ -23,7 +23,7 @@ const CategoryBanner = () => {
         {/* 2. Booster Boxes Link */}
         <Link to="/collection/pokemon-tcg/booster-boxes" className="category-item">
           <div className="image-wrapper">
-            <img src="../../../public/Images/c2.jpeg" alt="Shop Booster Boxes" />
+            <img src="Images/c2.jpeg" alt="Shop Booster Boxes" />
           </div>
           <div className="category-label">
             <h3>Booster Boxes</h3>
@@ -35,7 +35,7 @@ const CategoryBanner = () => {
         {/* Adjust this link if you have a specific blister pack route */}
         <Link to="/collection/pokemon-tcg/single-cards" className="category-item">
           <div className="image-wrapper">
-            <img src="../../../public/Images/c3.jpeg" alt="Shop Blister Packs" />
+            <img src="Images/c3.jpeg" alt="Shop Blister Packs" />
           </div>
           <div className="category-label">
             <h3>Singles</h3>

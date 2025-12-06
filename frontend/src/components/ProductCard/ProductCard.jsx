@@ -2,6 +2,10 @@ import React from 'react';
 import { useCart } from '../../context/CartContext';
 import './ProductCard.css';
 
+// Use the environment variable or fallback to the deployed backend URL
+// This ensures images load from the correct server whether you are on localhost or Render
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://pokemoncard-25nv.onrender.com';
+
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
 
@@ -9,13 +13,13 @@ const ProductCard = ({ product }) => {
   const getImgSrc = (imagePath) => {
     if (!imagePath) return "https://placehold.co/300x400?text=No+Image";
     
-    // If it starts with http (e.g. Unsplash), use it as is
+    // If it starts with http (e.g. Unsplash or external link), use it as is
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
     
-    // Otherwise, it's a local upload, prepend backend URL
-    return `http://localhost:5000${imagePath}`;
+    // Otherwise, it's a local upload, prepend the correct backend URL
+    return `${BASE_URL}${imagePath}`;
   };
 
   return (
@@ -25,6 +29,8 @@ const ProductCard = ({ product }) => {
           src={getImgSrc(product.image)} 
           alt={product.name} 
           className="product-image"
+          // Optional: Add a fallback image if the source fails to load
+          onError={(e) => { e.target.src = "https://placehold.co/300x400?text=Image+Not+Found"; }}
         />
       </div>
       <div className="product-info">
