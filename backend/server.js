@@ -133,6 +133,8 @@ io.on('connection', (socket) => {
 });
 // -----------------------
 
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({ origin: FRONTEND_URL, credentials: true })); // <--- Use the variable here too
 app.use(express.json());
@@ -150,8 +152,8 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production', // Ensure this is true in prod
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   }
 }));
 
