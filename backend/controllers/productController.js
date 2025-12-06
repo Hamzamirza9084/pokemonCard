@@ -24,10 +24,9 @@ const deleteProduct = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
-  const { name, price, image, category, countInStock, description } = req.body;
+  const { name, price, image, category, subcategory, countInStock, description } = req.body;
   const product = new Product({
-    name, price, image, category, countInStock, description
-    // user: req.session.user._id // Optional: track who created it
+    name, price, image, category, subcategory, countInStock, description
   });
   const createdProduct = await product.save();
   res.status(201).json(createdProduct);
@@ -40,7 +39,18 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
+    const { category, subcategory } = req.query;
+    let query = {};
+
+    if (category) {
+      query.category = category;
+    }
+    
+    if (subcategory) {
+      query.subcategory = subcategory;
+    }
+
+    const products = await Product.find(query);
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -67,7 +77,7 @@ const getProductById = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-  const { name, price, description, brand, category, countInStock } = req.body;
+  const { name, price, description, brand, category, subcategory, countInStock } = req.body;
 
   const product = await Product.findById(req.params.id);
 
@@ -77,12 +87,10 @@ const updateProduct = async (req, res) => {
     product.description = description || product.description;
     product.brand = brand || product.brand;
     product.category = category || product.category;
+    product.subcategory = subcategory || product.subcategory; // Update subcategory
     product.countInStock = countInStock || product.countInStock;
 
-    // Check if a file was uploaded via Multer
     if (req.file) {
-      // Save the path relative to the server root
-      // Note: Windows uses backslashes, we replace them for URL compatibility
       product.image = `/uploads/${req.file.filename}`;
     }
 

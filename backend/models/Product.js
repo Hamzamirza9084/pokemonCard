@@ -15,7 +15,11 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true, // e.g., 'Pokemon TCG', 'Supplies', 'Sports'
+    required: true, // e.g., 'Pokemon TCG', 'One Piece TCG', 'Accessories'
+  },
+  subcategory: {
+    type: String,
+    required: false, // e.g., 'Booster Packs', 'Decks'
   },
   price: {
     type: Number,

@@ -1,61 +1,75 @@
 import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
+
+// --- NEW IMPORTS ---
+import http from 'http';
+import { Server } from 'socket.io';
+// -------------------
+
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import { notFound, errorHandler } from './middleware/authMiddleware.js'; // Assuming errors are here or similar
 
 dotenv.config();
-
 connectDB();
 
-// --- 1. Initialize App FIRST ---
-const app = express(); 
+const app = express();
 
-// --- 2. Configure Middleware ---
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
+// --- SOCKET.IO SETUP ---
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Your frontend URL
+    methods: ["GET", "POST"]
+  }
+});
 
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  // User joins their own room based on ID or generated session
+  socket.on('join_room', (userId) => {
+    socket.join(userId);
+    console.log(`User with ID: ${userId} joined room: ${userId}`);
+  });
+
+  // Handle sending messages
+  socket.on('send_message', (data) => {
+    // data = { room, author, message, time, isAdmin }
+    // Send to the specific room (User's ID)
+    socket.to(data.room).emit('receive_message', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User Disconnected', socket.id);
+  });
+});
+// -----------------------
+
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// --- 3. Session Middleware ---
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secretkey123',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/pokemon_shop',
-    ttl: 14 * 24 * 60 * 60 
-  }),
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 
-  }
-}));
-
-// --- 4. Mount Routes ---
+// Routes
 app.use('/api/products', productRoutes);
-app.use('/api/users', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
-
-// --- 5. Static Uploads Folder (AFTER app is defined) ---
-const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
 
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+// app.use(notFound);
+// app.use(errorHandler);
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// CHANGE app.listen TO server.listen
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

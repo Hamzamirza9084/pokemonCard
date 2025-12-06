@@ -1,18 +1,16 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom'; // Outlet renders the child route
-import Navbar from '../components/Navbar/Navbar';
+// ... existing imports
+import ChatWidget from '../components/ChatWidget/ChatWidget'; // Updated import
 
 const MainLayout = () => {
   return (
-    <>
+    <div className="main-layout">
       <Navbar />
-      {/* Outlet is where Home, PokemonTCG, etc. will appear */}
       <main>
-        <Outlet /> 
+        <Outlet />
       </main>
-      {/* <Footer /> can go here */}
-    </>
+      {/* Replaced WhatsappChat with ChatWidget */}
+      <ChatWidget /> 
+    </div>
   );
 };
-
 export default MainLayout;
