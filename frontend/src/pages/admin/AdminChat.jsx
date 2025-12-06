@@ -14,14 +14,22 @@ const AdminChat = () => {
   const [allUsers, setAllUsers] = useState([]);       // From DB
 
   // 1. Fetch All Users from DB on Mount
+  // 1. Fetch All Users from DB on Mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Assuming you have this route set up in authRoutes
         const { data } = await axios.get('/api/users'); 
-        setAllUsers(data);
+        
+        // Check if data is an array before setting it
+        if (Array.isArray(data)) {
+            setAllUsers(data);
+        } else {
+            console.error("API did not return an array:", data);
+            setAllUsers([]); // Fallback to empty array
+        }
       } catch (error) {
         console.error("Error fetching users", error);
+        // Optional: Handle 401 unauthorized redirects here
       }
     };
     fetchUsers();

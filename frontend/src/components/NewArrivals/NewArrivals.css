@@ -1,0 +1,36 @@
+.new-arrivals-container {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.new-arrivals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+    justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .new-arrivals-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 items per row on mobile */
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .new-arrivals-grid {
+        grid-template-columns: 1fr; /* 1 item per row on very small screens */
+    }
+}

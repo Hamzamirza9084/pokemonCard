@@ -45,11 +45,11 @@ const Navbar = () => {
               <li className="dropdown-item"><Link to="/collection/one-piece-tcg/booster-packs">Booster Packs</Link></li>
               <li className="dropdown-item"><Link to="/collection/one-piece-tcg/booster-boxes">Booster Boxes</Link></li>
               <li className="dropdown-item"><Link to="/collection/one-piece-tcg/single-cards">Single Cards</Link></li>
+              <li className="dropdown-item"><Link to="/collection/one-piece-tcg/magazines">Magazines</Link></li>
             </ul>
           </li>
 
           <li className="nav-item"><Link to="/collection/accessories">Accessories</Link></li>
-          <li className="nav-item"><Link to="/track-order">Track Order</Link></li>
         </ul>
       </nav>
 

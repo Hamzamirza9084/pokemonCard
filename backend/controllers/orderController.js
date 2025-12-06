@@ -1,5 +1,6 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js'; 
+import sendOrderConfirmation from '../utils/sendEmail.js'; // <--- 1. Import this
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -30,7 +31,7 @@ const addOrderItems = async (req, res) => {
       return res.status(400).json({ message: 'Invalid payment method.' });
     }
 
-    // 4. Fetch user for phone number
+    // 4. Fetch user for email and phone
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -51,7 +52,7 @@ const addOrderItems = async (req, res) => {
     const order = new Order({
       orderItems: orderItems.map((x) => ({
         ...x,
-        product: x.product || x._id, // Handle cases where frontend might send _id instead of product
+        product: x.product || x._id, 
       })),
       user: userId,
       shippingAddress: { 
@@ -68,10 +69,19 @@ const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // --- 7. SEND EMAIL NOTIFICATION ---
+    // We pass user.email (from DB) and the createdOrder object
+    if (user.email) {
+      // We don't await this so the UI response isn't delayed by email sending
+      sendOrderConfirmation(user.email, createdOrder); 
+    }
+    // ----------------------------------
+
     res.status(201).json(createdOrder);
 
   } catch (error) {
-    console.error("Create Order Error:", error); // Log the specific error to console
+    console.error("Create Order Error:", error); 
     res.status(500).json({ message: error.message || 'Failed to create order' });
   }
 };
@@ -92,17 +102,13 @@ const getOrders = async (req, res) => {
 // @route   PUT /api/orders/:id/deliver
 // @access  Private/Admin
 const updateOrderToDelivered = async (req, res) => {
-  // 1. Find the EXISTING order
   const order = await Order.findById(req.params.id);
 
   if (order) {
-    // 2. Update fields
     order.isDelivered = true;
     order.deliveredAt = Date.now();
 
-    // 3. Save (This triggers the validation error if the fetched 'order' is missing data)
     const updatedOrder = await order.save();
-
     res.json(updatedOrder);
   } else {
     res.status(404).json({ message: 'Order not found' });
