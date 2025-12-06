@@ -1,0 +1,126 @@
+/* frontend/src/pages/admin/AdminChat.css */
+
+.admin-chat-page {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
+
+.admin-chat-setup {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.admin-chat-setup input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.admin-chat-setup button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-chat-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.admin-chat-box h3 {
+  background-color: #333;
+  color: #fff;
+  margin: 0;
+  padding: 15px;
+}
+
+.admin-messages-area {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg-row {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.admin-sent {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.user-sent {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.msg-bubble {
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.admin-sent .msg-bubble {
+  background-color: #007bff;
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.user-sent .msg-bubble {
+  background-color: #e9ecef;
+  color: #333;
+  border-bottom-left-radius: 2px;
+}
+
+.msg-info {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.admin-input-area {
+  display: flex;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  background: white;
+}
+
+.admin-input-area input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.admin-input-area button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admin-input-area button:hover {
+  background-color: #0056b3;
+}

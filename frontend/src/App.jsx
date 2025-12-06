@@ -30,6 +30,7 @@ import ProductList from './pages/admin/ProductList';
 import OrderList from './pages/admin/OrderList';
 import UserList from './pages/admin/UserList';
 import EditProductScreen from './pages/admin/EditProductScreen';
+import AdminChat from './pages/admin/AdminChat'; // <--- IMPORT ADDED HERE
 
 // Collection Page (Added based on previous context)
 import Collection from './pages/Collection';
@@ -81,7 +82,7 @@ function App() {
                 <Route path="product/:id/edit" element={<EditProductScreen />} />
                 <Route path="orderlist" element={<OrderList />} />
                 <Route path="userlist" element={<UserList />} />
-              
+                <Route path="chat" element={<AdminChat />} /> {/* <--- ROUTE ADDED HERE */}
               </Route>
             </Route>
 

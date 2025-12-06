@@ -66,8 +66,8 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// app.use(notFound);
-// app.use(errorHandler);
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,5 +1,7 @@
-// ... existing imports
-import ChatWidget from '../components/ChatWidget/ChatWidget'; // Updated import
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar/Navbar';
+import ChatWidget from '../components/ChatWidget/ChatWidget';
 
 const MainLayout = () => {
   return (
@@ -8,9 +10,10 @@ const MainLayout = () => {
       <main>
         <Outlet />
       </main>
-      {/* Replaced WhatsappChat with ChatWidget */}
+      {/* ChatWidget handles the socket connection internally */}
       <ChatWidget /> 
     </div>
   );
 };
+
 export default MainLayout;
