@@ -34,3 +34,33 @@
         grid-template-columns: 1fr; /* 1 item per row on very small screens */
     }
 }
+
+/* Assuming you have a class like .products-grid or .items-container */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Desktop: 4 columns */
+  gap: 20px;
+  padding: 20px 40px;
+}
+
+@media screen and (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr); /* Tablet: 3 columns */
+    padding: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr); /* Mobile: 2 columns */
+    gap: 10px;
+    padding: 15px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .products-grid {
+    /* Optional: 1 column for very small phones, or keep 2 */
+    grid-template-columns: repeat(1, 1fr); 
+  }
+}

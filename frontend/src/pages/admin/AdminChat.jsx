@@ -18,7 +18,7 @@ const AdminChat = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await axios.get('/api/users'); 
+        const { data } = await axios.get('/users'); 
         
         // Check if data is an array before setting it
         if (Array.isArray(data)) {
