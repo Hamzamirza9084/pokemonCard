@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import axios from 'axios'; // For fetching all users
 import './AdminChat.css';
 
-const socket = io.connect("http://localhost:5000");
+const socket = io.connect("https://pokemoncard-25nv.onrender.com");
 
 const AdminChat = () => {
   const [activeChatRoom, setActiveChatRoom] = useState("");

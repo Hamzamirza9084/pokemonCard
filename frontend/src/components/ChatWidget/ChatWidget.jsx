@@ -9,7 +9,7 @@ import './ChatWidget.css';
 // It takes VITE_API_URL (e.g., "https://my-api.com/api") and removes "/api" to get the root URL
 const BACKEND_URL = import.meta.env.VITE_API_URL 
   ? import.meta.env.VITE_API_URL.replace('/api', '') 
-  : "http://localhost:5000";
+  : "https://pokemoncard-25nv.onrender.com";
 
 const socket = io.connect(BACKEND_URL);
 
