@@ -31,11 +31,14 @@ connectDB();
 
 const app = express();
 
+// Use an environment variable for the frontend URL, fallback to localhost for dev
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
 // --- SOCKET.IO SETUP ---
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Your frontend URL
+    origin: FRONTEND_URL, // <--- Use the variable
     methods: ["GET", "POST"]
   }
 });
@@ -131,7 +134,7 @@ io.on('connection', (socket) => {
 // -----------------------
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: FRONTEND_URL, credentials: true })); // <--- Use the variable here too
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

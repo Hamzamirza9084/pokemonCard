@@ -5,7 +5,13 @@ import { FaComments, FaPaperPlane, FaTimes, FaUserLock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './ChatWidget.css';
 
-const socket = io.connect("http://localhost:5000");
+// Logic to determine the backend URL for Socket.io
+// It takes VITE_API_URL (e.g., "https://my-api.com/api") and removes "/api" to get the root URL
+const BACKEND_URL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL.replace('/api', '') 
+  : "http://localhost:5000";
+
+const socket = io.connect(BACKEND_URL);
 
 const ChatWidget = () => {
   const { user } = useAuth();
