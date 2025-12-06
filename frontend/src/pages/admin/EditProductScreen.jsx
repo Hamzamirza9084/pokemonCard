@@ -143,7 +143,11 @@ const EditProductScreen = () => {
           {preview && <img src={preview} alt="Preview" style={{ height: '100px', marginTop: '10px' }} />}
           {/* Show existing image if no preview */}
           {!preview && typeof image === 'string' && (
-             <img src={`http://localhost:5000${image}`} alt="Current" style={{ height: '100px', marginTop: '10px' }} />
+             <img 
+               src={image.startsWith('http') ? image : `http://localhost:5000${image}`} 
+               alt="Current" 
+               style={{ height: '100px', marginTop: '10px' }} 
+             />
           )}
         </div>
 

@@ -5,17 +5,30 @@ import './ProductCard.css';
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
 
+  // Helper function to handle image source
+  const getImgSrc = (imagePath) => {
+    if (!imagePath) return "https://placehold.co/300x400?text=No+Image";
+    
+    // If it starts with http (e.g. Unsplash), use it as is
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    
+    // Otherwise, it's a local upload, prepend backend URL
+    return `http://localhost:5000${imagePath}`;
+  };
+
   return (
     <div className="product-card">
       <div className="product-image-container">
-        {/* Use a placeholder if image fails or isn't provided */}
         <img 
-          src={product.image || "https://placehold.co/300x400?text=No+Image"} 
+          src={getImgSrc(product.image)} 
           alt={product.name} 
           className="product-image"
         />
       </div>
       <div className="product-info">
+        {/* ... existing code ... */}
         <h3 className="product-title">{product.name}</h3>
         <p className="product-category">{product.category}</p>
         <div className="product-bottom">
