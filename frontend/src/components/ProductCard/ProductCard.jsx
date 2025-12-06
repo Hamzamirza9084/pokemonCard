@@ -28,11 +28,11 @@ const ProductCard = ({ product }) => {
         />
       </div>
       <div className="product-info">
-        {/* ... existing code ... */}
         <h3 className="product-title">{product.name}</h3>
         <p className="product-category">{product.category}</p>
         <div className="product-bottom">
-          <span className="product-price">${product.price.toFixed(2)}</span>
+          {/* Changed $ to ₹ */}
+          <span className="product-price">₹{product.price.toFixed(2)}</span>
           <button 
             className="add-to-cart-btn"
             onClick={() => addToCart(product)}

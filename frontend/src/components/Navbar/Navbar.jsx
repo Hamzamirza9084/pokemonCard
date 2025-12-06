@@ -19,7 +19,7 @@ const Navbar = () => {
     <header className="header">
       <div className="logo-container">
         <Link to="/">
-          <img src="/Images/logo.jpg" alt="TCG Republic Logo" />
+          <img src="../../../public/Images/logo4.png" alt="TCG Republic Logo" />
         </Link>
       </div>
 

@@ -59,9 +59,15 @@ io.on('connection', (socket) => {
     } else if (data.userId) {
       roomId = data.userId;
       
-      // Track Active User if not already in list
-      const existingUser = activeUsers.find((u) => u.userId === data.userId);
-      if (!existingUser) {
+      // 🟢 FIX: Update socketId if user exists, otherwise push new user
+      const existingUserIndex = activeUsers.findIndex((u) => u.userId === data.userId);
+
+      if (existingUserIndex !== -1) {
+        // User exists: UPDATE their socketId to the new connection
+        activeUsers[existingUserIndex].socketId = socket.id;
+        activeUsers[existingUserIndex].userName = data.userName; 
+      } else {
+        // User does not exist: ADD them
         activeUsers.push({ 
           userId: data.userId, 
           userName: data.userName, 
@@ -113,8 +119,11 @@ io.on('connection', (socket) => {
   // --- DISCONNECT ---
   socket.on('disconnect', () => {
     console.log('User Disconnected', socket.id);
-    // Remove user from active list
+    
+    // 🟢 FIX: Remove user from active list ONLY if the socketId matches
+    // This prevents removing a user who has already reconnected on a new socket
     activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+    
     // Update Admin's list
     io.emit('active_users', activeUsers);
   });

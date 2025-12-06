@@ -32,8 +32,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register function
-  const register = async (name, email, password) => {
-    const { data } = await api.post('/users', { name, email, password });
+const register = async (name, email, password) => {
+    // 🔴 OLD (Incorrect):
+    // const { data } = await api.post('/users', { name, email, password });
+
+    // 🟢 NEW (Correct):
+    const { data } = await api.post('/users/register', { name, email, password });
+    
     setUser(data);
     return data;
   };

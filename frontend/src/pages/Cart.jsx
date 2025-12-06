@@ -64,17 +64,14 @@ const Cart = () => {
       const status = error.response ? error.response.status : null;
       const message = error.response?.data?.message || '';
 
-      // 1. Handle "Not Authorized" -> Redirect to Login
       if (status === 401) {
         alert('You must be logged in to place an order.');
         navigate('/login');
       } 
-      // 2. Handle "Missing Phone Number" -> Redirect to Profile [NEW LOGIC]
       else if (message === 'Please update your profile with a phone number before placing an order.') {
         alert(message);
         navigate('/profile'); 
       }
-      // 3. Handle other errors
       else {
         alert(message || 'Failed to place order. Please try again.');
       }
@@ -117,11 +114,13 @@ const Cart = () => {
                   <img src={item.image} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
                   <div>
                     <h4>{item.name}</h4>
-                    <p>${item.price} x {item.qty}</p>
+                    {/* Changed $ to ₹ */}
+                    <p>₹{item.price} x {item.qty}</p>
                   </div>
                 </div>
                 <div>
-                  <span style={{ fontWeight: 'bold', marginRight: '15px' }}>${(item.price * item.qty).toFixed(2)}</span>
+                  {/* Changed $ to ₹ */}
+                  <span style={{ fontWeight: 'bold', marginRight: '15px' }}>₹{(item.price * item.qty).toFixed(2)}</span>
                   <button 
                     onClick={() => removeFromCart(item._id)}
                     style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
@@ -179,15 +178,12 @@ const Cart = () => {
                 style={{ padding: '10px' }}
               />
 
-              {/* Note: Phone is now optional here because we use the Profile phone number, 
-                  but you can keep it to allow users to specify a shipping-specific contact */}
               <input 
                 type="tel" 
                 name="phone" 
                 placeholder="Shipping Contact Number" 
                 value={shippingAddress.phone} 
                 onChange={handleInputChange} 
-                // required // Removed required here if relying strictly on Profile phone
                 style={{ padding: '10px' }}
               />
 
@@ -218,7 +214,8 @@ const Cart = () => {
               </div>
 
               <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-                <h3>Total: ${totalPrice}</h3>
+                {/* Changed $ to ₹ */}
+                <h3>Total: ₹{totalPrice}</h3>
               </div>
 
               <button 

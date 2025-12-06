@@ -38,7 +38,7 @@ const CategoryBanner = () => {
             <img src="../../../public/Images/c3.jpeg" alt="Shop Blister Packs" />
           </div>
           <div className="category-label">
-            <h3>Blister Packs & Singles</h3>
+            <h3>Singles</h3>
             <span>Shop Now</span>
           </div>
         </Link>

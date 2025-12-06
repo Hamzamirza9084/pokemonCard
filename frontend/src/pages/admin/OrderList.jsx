@@ -15,9 +15,6 @@ const OrderList = () => {
 
  const deliverHandler = async (id) => {
     try {
-      // FIX: Use 'api' instead of 'axios'
-      // FIX: Use the 'id' argument instead of 'orderId'
-      // FIX: Removed undefined 'config'
       await api.put(`/orders/${id}/deliver`, {});
       
       // Refresh the list
@@ -49,7 +46,8 @@ const OrderList = () => {
               <td>{order._id}</td>
               <td>{order.user && order.user.name}</td>
               <td>{order.createdAt.substring(0, 10)}</td>
-              <td>${order.totalPrice}</td>
+              {/* Changed $ to ₹ */}
+              <td>₹{order.totalPrice}</td>
               <td>
                   {order.isPaid ? <span style={{color:'green'}}>Paid</span> : <span style={{color:'red'}}>Not Paid</span>}
               </td>
