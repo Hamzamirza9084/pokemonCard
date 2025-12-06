@@ -3,25 +3,22 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import session from 'express-session';       // Required for sessions
-import MongoStore from 'connect-mongo';      // Required for storing sessions in MongoDB
-
-// --- SOCKET.IO IMPORTS ---
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import http from 'http';
 import { Server } from 'socket.io';
-// -------------------------
 
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js'; // FIXED: Correct file path
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import Message from './models/Message.js'; // <--- Added Message Model
 
 // Load environment variables
 dotenv.config();
 
-// --- DEBUGGING CHECK ---
-// This will stop the server immediately if your .env file is missing or empty
+// Check for MONGO_URI
 if (!process.env.MONGO_URI) {
   console.error("----------------------------------------------------------------");
   console.error("FATAL ERROR: MONGO_URI is not defined.");
@@ -29,7 +26,6 @@ if (!process.env.MONGO_URI) {
   console.error("----------------------------------------------------------------");
   process.exit(1);
 }
-// -----------------------
 
 connectDB();
 
@@ -44,39 +40,100 @@ const io = new Server(server, {
   }
 });
 
+// Track active users in memory
+let activeUsers = [];
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // User joins their own room based on ID
-  socket.on('join_room', (userId) => {
-    socket.join(userId);
-    console.log(`User with ID: ${userId} joined room: ${userId}`);
+  // --- JOIN ROOM & LOAD HISTORY ---
+  socket.on('join_room', async (data) => {
+    let roomId = "";
+
+    // Admin joins by sending a simple string (User ID they want to chat with)
+    if (typeof data === 'string') {
+      roomId = data;
+      console.log(`Admin joined room: ${roomId}`);
+    
+    // Users join by sending an object { userId, userName }
+    } else if (data.userId) {
+      roomId = data.userId;
+      
+      // Track Active User if not already in list
+      const existingUser = activeUsers.find((u) => u.userId === data.userId);
+      if (!existingUser) {
+        activeUsers.push({ 
+          userId: data.userId, 
+          userName: data.userName, 
+          socketId: socket.id 
+        });
+      }
+      
+      // Broadcast updated active users list to Admin
+      io.emit('active_users', activeUsers);
+      console.log(`User ${data.userName} joined room: ${roomId}`);
+    }
+
+    // Join the socket room
+    socket.join(roomId);
+
+    // FETCH OLD MESSAGES FROM DB
+    try {
+      const history = await Message.find({ room: roomId }).sort({ createdAt: 1 });
+      socket.emit('load_messages', history); // Send history to the client who just joined
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+    }
   });
 
-  // Handle sending messages
-  socket.on('send_message', (data) => {
-    // Send to the specific room (User's ID)
-    socket.to(data.room).emit('receive_message', data);
+  // --- SEND & SAVE MESSAGE ---
+  socket.on('send_message', async (data) => {
+    // 1. Save to Database
+    try {
+      const newMessage = new Message({
+        room: data.room,
+        author: data.author,
+        message: data.message,
+        isAdmin: data.isAdmin,
+        time: data.time
+      });
+      await newMessage.save();
+      
+      // 2. Send to Room (Real-time)
+      // Broadcast to everyone in the room (including sender if they didn't optimistically update)
+      // .to() sends to everyone in room EXCEPT sender, .in() sends to everyone INCLUDING sender
+      // Typically frontend handles its own display, so we send to the room for the *other* party.
+      socket.to(data.room).emit('receive_message', data);
+      
+    } catch (error) {
+      console.error("Error saving message:", error);
+    }
   });
 
+  // --- DISCONNECT ---
   socket.on('disconnect', () => {
     console.log('User Disconnected', socket.id);
+    // Remove user from active list
+    activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+    // Update Admin's list
+    io.emit('active_users', activeUsers);
   });
 });
 // -----------------------
 
+// Middleware
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// --- SESSION MIDDLEWARE ---
+// Session Middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your_secret_key',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI, // This is what was failing
+    mongoUrl: process.env.MONGO_URI,
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
@@ -85,11 +142,10 @@ app.use(session({
     sameSite: 'lax',
   }
 }));
-// --------------------------
 
 // Routes
 app.use('/api/products', productRoutes);
-app.use('/api/users', authRoutes); // FIXED: Mapped to /api/users to match frontend
+app.use('/api/users', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
 
@@ -97,6 +153,7 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+// Error Handling
 app.use(notFound);
 app.use(errorHandler);
 

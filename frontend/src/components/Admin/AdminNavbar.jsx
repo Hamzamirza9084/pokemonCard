@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaBox, FaShoppingBag, FaUsers, FaSignOutAlt, FaHome } from 'react-icons/fa';
+import { FaTachometerAlt, FaBox, FaShoppingBag, FaUsers, FaSignOutAlt, FaHome, FaComments } from 'react-icons/fa'; // Added FaComments
 import { useAuth } from '../../context/AuthContext';
 
 const AdminNavbar = () => {
@@ -39,6 +39,13 @@ const AdminNavbar = () => {
             <FaUsers className="icon" /> Users
           </Link>
         </li>
+        {/* --- Added Chat Link Below --- */}
+        <li>
+          <Link to="/admin/chat">
+            <FaComments className="icon" /> Support Chat
+          </Link>
+        </li>
+        {/* ----------------------------- */}
         <li className="divider"></li>
         <li>
           <Link to="/">

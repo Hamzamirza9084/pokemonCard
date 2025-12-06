@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import { useAuth } from '../../context/AuthContext'; // To get user ID
-import { FaComments, FaPaperPlane, FaTimes } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+import { FaComments, FaPaperPlane, FaTimes, FaUserLock } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import './ChatWidget.css';
 
-// Connect to backend
 const socket = io.connect("http://localhost:5000");
 
 const ChatWidget = () => {
@@ -13,31 +13,36 @@ const ChatWidget = () => {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
 
-  // Use user ID as room, or a random ID if guest (handling guests requires more logic, utilizing user._id for now)
-  const roomId = user ? user._id : "guest"; 
-
   useEffect(() => {
-    if (roomId) {
-      socket.emit("join_room", roomId);
+    if (user && isOpen) {
+      socket.emit("join_room", { userId: user._id, userName: user.name });
     }
-  }, [roomId]);
+  }, [user, isOpen]);
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
       setMessageList((list) => [...list, data]);
     });
-    // Cleanup listener
-    return () => socket.off("receive_message");
+    
+    // --- NEW: LISTEN FOR HISTORY ---
+    socket.on("load_messages", (history) => {
+      setMessageList(history);
+    });
+
+    return () => {
+      socket.off("receive_message");
+      socket.off("load_messages");
+    };
   }, []);
 
   const sendMessage = async () => {
-    if (currentMessage !== "") {
+    if (currentMessage !== "" && user) {
       const messageData = {
-        room: roomId,
-        author: user ? user.name : "Guest",
+        room: user._id,
+        author: user.name,
         message: currentMessage,
-        isAdmin: false, // This is a user message
-        time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
+        isAdmin: false,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
       await socket.emit("send_message", messageData);
@@ -45,6 +50,16 @@ const ChatWidget = () => {
       setCurrentMessage("");
     }
   };
+
+  if (!user) {
+    return (
+        <div className="chat-widget-container">
+            <Link to="/login" className="chat-toggle-btn" style={{backgroundColor: '#6c757d'}}>
+                <FaUserLock size={20} /> Login to Chat
+            </Link>
+        </div>
+    );
+  }
 
   return (
     <div className="chat-widget-container">
@@ -66,7 +81,7 @@ const ChatWidget = () => {
                 </div>
                 <div className="message-meta">
                   <p id="time">{msg.time}</p>
-                  <p id="author">{msg.author}</p>
+                  <p id="author">{msg.isAdmin ? "Support" : "You"}</p>
                 </div>
               </div>
             ))}
@@ -76,8 +91,8 @@ const ChatWidget = () => {
               type="text"
               value={currentMessage}
               placeholder="Type a message..."
-              onChange={(event) => setCurrentMessage(event.target.value)}
-              onKeyPress={(event) => { event.key === "Enter" && sendMessage(); }}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={(e) => { e.key === "Enter" && sendMessage(); }}
             />
             <button onClick={sendMessage}><FaPaperPlane /></button>
           </div>

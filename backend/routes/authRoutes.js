@@ -1,26 +1,23 @@
 import express from 'express';
-
-import { getUsers } from '../controllers/authController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
-
-import {
-  authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile, // Import the new controller
+import { 
+  authUser, 
+  registerUser, 
+  logoutUser, 
+  getUserProfile, 
+  updateUserProfile, 
+  getUsers // <--- Import the new function
 } from '../controllers/authController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', registerUser);
+router.post('/register', registerUser);
 router.post('/login', authUser);
 router.post('/logout', logoutUser);
-router.route('/profile')
-  .get(getUserProfile)
-  .put(updateUserProfile); // Add PUT request handling
+router.route('/profile').get(protect, getUserProfile).put(protect, updateUserProfile);
 
-router.route('/').post(registerUser).get(protect, admin, getUsers);
+// --- NEW ROUTE FOR ADMIN CHAT ---
+router.route('/').get(protect, admin, getUsers); 
+// -------------------------------
 
 export default router;
-
