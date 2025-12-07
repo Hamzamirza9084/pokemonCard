@@ -38,7 +38,10 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL, // <--- Use the variable
+      origin: [
+        "http://localhost:5173",           // Allow local development
+        FRONTEND_URL // Allow production
+      ], // <--- Use the variable
     methods: ["GET", "POST"]
   }
 });
@@ -136,7 +139,10 @@ io.on('connection', (socket) => {
 app.set('trust proxy', 1);
 
 // Middleware
-app.use(cors({ origin: FRONTEND_URL, credentials: true })); // <--- Use the variable here too
+app.use(cors({  origin: [
+      "http://localhost:5173",           // Allow local development
+      FRONTEND_URL // Allow production
+    ],  credentials: true })); // <--- Use the variable here too
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
