@@ -13,7 +13,7 @@ import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import Message from './models/Message.js'; // <--- Added Message Model
+import Message from './models/Message.js';
 
 // Load environment variables
 dotenv.config();
@@ -22,8 +22,6 @@ dotenv.config();
 if (!process.env.MONGO_URI) {
   console.error("----------------------------------------------------------------");
   console.error("FATAL ERROR: MONGO_URI is not defined.");
-  console.error("Please create a .env file in the 'backend' folder with this variable.");
-  console.error("----------------------------------------------------------------");
   process.exit(1);
 }
 
@@ -34,14 +32,23 @@ const app = express();
 // Use an environment variable for the frontend URL, fallback to localhost for dev
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
+// --- CORS CONFIGURATION (Apply globally first) ---
+app.use(cors({
+  origin: [
+    "http://localhost:5173",          // Allow local development
+    FRONTEND_URL                      // Allow production (from .env)
+  ],
+  credentials: true
+}));
+
 // --- SOCKET.IO SETUP ---
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-      origin: [
-        "http://localhost:5173",           // Allow local development
-        FRONTEND_URL // Allow production
-      ], // <--- Use the variable
+    origin: [
+      "http://localhost:5173",        // Allow local development
+      FRONTEND_URL                    // Allow production
+    ],
     methods: ["GET", "POST"]
   }
 });
@@ -56,24 +63,21 @@ io.on('connection', (socket) => {
   socket.on('join_room', async (data) => {
     let roomId = "";
 
-    // Admin joins by sending a simple string (User ID they want to chat with)
+    // Admin joins by sending a simple string
     if (typeof data === 'string') {
       roomId = data;
       console.log(`Admin joined room: ${roomId}`);
     
-    // Users join by sending an object { userId, userName }
+    // Users join by sending an object
     } else if (data.userId) {
       roomId = data.userId;
       
-      // 🟢 FIX: Update socketId if user exists, otherwise push new user
       const existingUserIndex = activeUsers.findIndex((u) => u.userId === data.userId);
 
       if (existingUserIndex !== -1) {
-        // User exists: UPDATE their socketId to the new connection
         activeUsers[existingUserIndex].socketId = socket.id;
         activeUsers[existingUserIndex].userName = data.userName; 
       } else {
-        // User does not exist: ADD them
         activeUsers.push({ 
           userId: data.userId, 
           userName: data.userName, 
@@ -81,18 +85,15 @@ io.on('connection', (socket) => {
         });
       }
       
-      // Broadcast updated active users list to Admin
       io.emit('active_users', activeUsers);
       console.log(`User ${data.userName} joined room: ${roomId}`);
     }
 
-    // Join the socket room
     socket.join(roomId);
 
-    // FETCH OLD MESSAGES FROM DB
     try {
       const history = await Message.find({ room: roomId }).sort({ createdAt: 1 });
-      socket.emit('load_messages', history); // Send history to the client who just joined
+      socket.emit('load_messages', history);
     } catch (error) {
       console.error("Error fetching chat history:", error);
     }
@@ -100,7 +101,6 @@ io.on('connection', (socket) => {
 
   // --- SEND & SAVE MESSAGE ---
   socket.on('send_message', async (data) => {
-    // 1. Save to Database
     try {
       const newMessage = new Message({
         room: data.room,
@@ -110,11 +110,6 @@ io.on('connection', (socket) => {
         time: data.time
       });
       await newMessage.save();
-      
-      // 2. Send to Room (Real-time)
-      // Broadcast to everyone in the room (including sender if they didn't optimistically update)
-      // .to() sends to everyone in room EXCEPT sender, .in() sends to everyone INCLUDING sender
-      // Typically frontend handles its own display, so we send to the room for the *other* party.
       socket.to(data.room).emit('receive_message', data);
       
     } catch (error) {
@@ -125,12 +120,7 @@ io.on('connection', (socket) => {
   // --- DISCONNECT ---
   socket.on('disconnect', () => {
     console.log('User Disconnected', socket.id);
-    
-    // 🟢 FIX: Remove user from active list ONLY if the socketId matches
-    // This prevents removing a user who has already reconnected on a new socket
     activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
-    
-    // Update Admin's list
     io.emit('active_users', activeUsers);
   });
 });
@@ -138,11 +128,7 @@ io.on('connection', (socket) => {
 
 app.set('trust proxy', 1);
 
-// Middleware
-app.use(cors({  origin: [
-      "http://localhost:5173",           // Allow local development
-      FRONTEND_URL // Allow production
-    ],  credentials: true })); // <--- Use the variable here too
+// Standard Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -158,7 +144,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Ensure this is true in prod
+    secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   }
 }));
