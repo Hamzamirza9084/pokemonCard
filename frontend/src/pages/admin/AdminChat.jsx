@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import axios from 'axios'; // For fetching all users
+import api from '../../api/axios'; // <--- FIX 1: Import configured api instance
 import './AdminChat.css';
 
-const socket = io.connect("https://pokemoncard-25nv.onrender.com");
+// <--- FIX 2: Dynamic Backend URL Logic (Matches ChatWidget)
+const BACKEND_URL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL.replace('/api', '') 
+  : "https://pokemoncard-25nv.onrender.com";
+
+const socket = io.connect(BACKEND_URL);
 
 const AdminChat = () => {
   const [activeChatRoom, setActiveChatRoom] = useState("");
@@ -14,11 +19,11 @@ const AdminChat = () => {
   const [allUsers, setAllUsers] = useState([]);       // From DB
 
   // 1. Fetch All Users from DB on Mount
-  // 1. Fetch All Users from DB on Mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await axios.get('/users'); 
+        // <--- FIX 3: Use 'api.get' instead of 'axios.get'
+        const { data } = await api.get('/users'); 
         
         // Check if data is an array before setting it
         if (Array.isArray(data)) {

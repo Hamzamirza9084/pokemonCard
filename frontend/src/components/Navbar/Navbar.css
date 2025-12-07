@@ -148,27 +148,25 @@
   border: 2px solid white;
 }
 
-/* Existing styles remain the same... */
-
 .mobile-menu-icon {
   display: none; /* Hidden on desktop */
   cursor: pointer;
   color: #333;
 }
 
-/* MEDIA QUERY FOR MOBILE DEVICES (Tablets and Phones) */
+/* --- MEDIA QUERY FOR MOBILE DEVICES (Tablets and Phones) --- */
 @media screen and (max-width: 768px) {
   .header {
-    padding: 0 20px; /* Reduce padding */
+    padding: 0 20px; 
     height: 70px;
   }
 
   .logo-container img {
-    height: 40px; /* Smaller logo */
+    height: 40px; 
   }
 
   .mobile-menu-icon {
-    display: block; /* Show hamburger */
+    display: block; 
     z-index: 1002;
   }
 
@@ -189,6 +187,11 @@
     transition: 0.3s ease;
     z-index: 1001;
     padding-top: 80px;
+    
+    /* FIX: Ensures padding doesn't add to width */
+    box-sizing: border-box; 
+    /* FIX: Allows scrolling if content is too tall */
+    overflow-y: auto; 
   }
 
   .nav-container.active {
@@ -207,25 +210,36 @@
     height: auto;
     padding: 15px 25px;
     border-bottom: 1px solid #f0f0f0;
-    display: block; /* Change from flex to block for stacking */
+    display: block; 
+    
+    /* FIX: Ensures padding doesn't add to width */
+    box-sizing: border-box; 
   }
 
   /* Handle Dropdowns on Mobile */
   .dropdown {
-    position: static; /* Not absolute anymore */
+    position: static; 
     transform: none;
     box-shadow: none;
     border-left: 3px solid #fca311;
-    display: none; /* Use JS or simple CSS hover logic */
+    display: none; 
     background-color: #fafafa;
     width: 100%;
     opacity: 1;
     visibility: visible;
-    padding-left: 10px;
+    padding-left: 0;
+    
+    /* FIX: Ensures padding doesn't add to width */
+    box-sizing: border-box; 
+  }
+  
+  .dropdown-item a {
+     /* FIX: Allows long text to wrap instead of overflowing */
+     white-space: normal; 
   }
 
-  /* Simple hover approach for mobile, or keep them always open */
   .nav-item:hover .dropdown {
+    margin-left: 87px;
     display: block;
   }
 

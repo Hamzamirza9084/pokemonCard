@@ -12,6 +12,7 @@ const ProductEdit = () => {
   const [price, setPrice] = useState(0);
   const [image, setImage] = useState('');
   const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState(''); // Added state for subcategory
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
@@ -24,6 +25,7 @@ const ProductEdit = () => {
         setPrice(data.price);
         setImage(data.image);
         setCategory(data.category);
+        setSubcategory(data.subcategory || ''); // Set subcategory data
         setCountInStock(data.countInStock);
         setDescription(data.description);
         setLoading(false);
@@ -43,6 +45,7 @@ const ProductEdit = () => {
         price,
         image,
         category,
+        subcategory, // Send subcategory to backend
         description,
         countInStock,
       });
@@ -79,9 +82,28 @@ const ProductEdit = () => {
               <input type="text" value={image} onChange={(e) => setImage(e.target.value)} />
             </div>
 
+            {/* Updated Category Dropdown */}
             <div className="form-group">
               <label>Category</label>
-              <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} />
+              <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="">Select Category</option>
+                <option value="Pokemon TCG">Pokemon TCG</option>
+                <option value="One Piece TCG">One Piece TCG</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </div>
+
+            {/* Added Subcategory Dropdown */}
+            <div className="form-group">
+              <label>Subcategory</label>
+              <select value={subcategory} onChange={(e) => setSubcategory(e.target.value)}>
+                <option value="">Select Subcategory</option>
+                <option value="Booster Packs">Booster Packs</option>
+                <option value="Booster Boxes">Booster Boxes</option>
+                <option value="Single Cards">Single Cards</option>
+                <option value="Decks">Decks</option>
+                <option value="Magazines">Magazines</option>
+              </select>
             </div>
 
             <div className="form-group">
