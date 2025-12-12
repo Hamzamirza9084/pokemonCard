@@ -70,12 +70,28 @@ const deleteProduct = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
-  const { name, price, image, category, subcategory, countInStock, description } = req.body;
-  const product = new Product({
-    name, price, image, category, subcategory, countInStock, description
-  });
-  const createdProduct = await product.save();
-  res.status(201).json(createdProduct);
+  try {
+    const { name, price, category, subcategory, countInStock, description } = req.body;
+
+    // Use Cloudinary URL from req.file.path if a file was uploaded
+    // If no file, check req.body.image (in case URL is sent manually)
+    const image = req.file ? req.file.path : req.body.image;
+
+    const product = new Product({
+      name, 
+      price, 
+      image, 
+      category, 
+      subcategory, 
+      countInStock, 
+      description
+    });
+
+    const createdProduct = await product.save();
+    res.status(201).json(createdProduct);
+  } catch (error) {
+    res.status(400).json({ message: 'Invalid product data', error: error.message });
+  }
 };
 
 // @desc    Update a product
@@ -95,8 +111,12 @@ const updateProduct = async (req, res) => {
     product.subcategory = subcategory || product.subcategory;
     product.countInStock = countInStock || product.countInStock;
 
+    // If a new file is uploaded, update the image field with the Cloudinary URL
     if (req.file) {
-      product.image = `/uploads/${req.file.filename}`;
+      product.image = req.file.path;
+    } else if (req.body.image) {
+       // Allow updating image via URL string if strictly needed
+       product.image = req.body.image;
     }
 
     const updatedProduct = await product.save();

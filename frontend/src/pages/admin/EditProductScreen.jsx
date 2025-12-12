@@ -12,6 +12,7 @@ const EditProductScreen = () => {
   const [preview, setPreview] = useState(''); // To show image preview
   const [brand, setBrand] = useState('');
   const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState(''); // Added state for subcategory
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,7 @@ const EditProductScreen = () => {
         setImage(data.image);
         setBrand(data.brand);
         setCategory(data.category);
+        setSubcategory(data.subcategory || ''); // Set subcategory data
         setCountInStock(data.countInStock);
         setDescription(data.description);
         setLoading(false);
@@ -55,6 +57,7 @@ const EditProductScreen = () => {
     formData.append('price', price);
     formData.append('brand', brand);
     formData.append('category', category);
+    formData.append('subcategory', subcategory); // Append subcategory to form data
     formData.append('countInStock', countInStock);
     formData.append('description', description);
 
@@ -65,13 +68,9 @@ const EditProductScreen = () => {
 
     try {
       setUploading(true);
-      // Note: When sending FormData, axios usually sets Content-Type automatically, 
-      // but it's safe to let the browser handle the boundary.
       await api.put(`/products/${productId}`, formData, {
         headers: {
-            // Do NOT manually set Content-Type to 'multipart/form-data' here if using axios + FormData
             // Axios handles the boundary automatically. 
-            // If you must, use "Content-Type": "multipart/form-data"
         }
       });
       
@@ -163,16 +162,38 @@ const EditProductScreen = () => {
           />
         </div>
 
-        {/* Category */}
+        {/* Category Dropdown */}
         <div className="form-group" style={{ marginBottom: '1rem'}}>
           <label>Category</label>
-          <input
-            type="text"
+          <select
             className="form-control"
             style={{ width: '100%', padding: '8px' }}
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-          />
+          >
+            <option value="">Select Category</option>
+            <option value="Pokemon TCG">Pokemon TCG</option>
+            <option value="One Piece TCG">One Piece TCG</option>
+            <option value="Accessories">Accessories</option>
+          </select>
+        </div>
+
+        {/* Subcategory Dropdown */}
+        <div className="form-group" style={{ marginBottom: '1rem'}}>
+          <label>Subcategory</label>
+          <select
+            className="form-control"
+            style={{ width: '100%', padding: '8px' }}
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+          >
+            <option value="">Select Subcategory</option>
+            <option value="Booster Packs">Booster Packs</option>
+            <option value="Booster Boxes">Booster Boxes</option>
+            <option value="Single Cards">Single Cards</option>
+            <option value="Decks">Decks</option>
+            <option value="Magazines">Magazines</option>
+          </select>
         </div>
 
         {/* Count In Stock */}

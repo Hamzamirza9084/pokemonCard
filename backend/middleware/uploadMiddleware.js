@@ -1,33 +1,26 @@
 import multer from 'multer';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import dotenv from 'dotenv';
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/'); // Save files to 'backend/uploads' folder
-  },
-  filename(req, file, cb) {
-    // Rename file to avoid duplicates: fieldname-timestamp.extension
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+dotenv.config();
+
+// 1. Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// 2. Configure Storage Engine
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'pokemon-cards', // The folder name in your Cloudinary dashboard
+    allowed_formats: ['jpg', 'png', 'jpeg'],
   },
 });
 
-function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    return cb(null, true);
-  } else {
-    cb('Images only!');
-  }
-}
-
-const upload = multer({
-  storage,
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
-});
+const upload = multer({ storage: storage });
 
 export default upload;
