@@ -12,7 +12,7 @@ const SliderList = () => {
   const fetchSliders = async () => {
     try {
       // FIX: Added /api/ prefix to match your backend server.js
-      const { data } = await api.get('/api/sliders'); 
+      const { data } = await api.get('/sliders'); 
       setSliders(data);
     } catch (err) {
       console.error("Failed to fetch sliders", err);
@@ -34,7 +34,7 @@ const SliderList = () => {
     try {
       setUploading(true);
       // FIX: Added /api/ prefix here as well
-      await api.post('/api/sliders', formData);
+      await api.post('/sliders', formData);
       alert('Slider Added!');
       setTitle('');
       setImage(null);
@@ -50,7 +50,7 @@ const SliderList = () => {
     if (window.confirm('Are you sure you want to delete this banner?')) {
       try {
         // FIX: Added /api/ prefix here too
-        await api.delete(`/api/sliders/${id}`);
+        await api.delete(`/sliders/${id}`);
         fetchSliders();
       } catch (err) {
         alert('Failed to delete');

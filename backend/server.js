@@ -154,7 +154,7 @@ app.use('/products', productRoutes);
 app.use('/users', authRoutes);
 app.use('/orders', orderRoutes);
 app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
-app.use('/api/sliders', sliderRoutes);
+app.use('/sliders', sliderRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');
