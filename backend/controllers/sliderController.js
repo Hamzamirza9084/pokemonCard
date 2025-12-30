@@ -4,46 +4,58 @@ import Slider from '../models/sliderModel.js';
 // @route   GET /api/sliders
 // @access  Public
 export const getSliders = async (req, res) => {
-  const sliders = await Slider.find({});
-  res.json(sliders);
+  try {
+    const sliders = await Slider.find({});
+    res.json(sliders);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch sliders" });
+  }
 };
 
 // @desc    Create a new slider banner
 // @route   POST /api/sliders
 // @access  Private/Admin
 export const createSlider = async (req, res) => {
-  const { title, description, link } = req.body;
-  
-  // Use the image URL returned by the uploadMiddleware (Cloudinary)
-  const image = req.file ? req.file.path : '';
+  try {
+    const { title } = req.body;
+    
+    // The image URL is returned by Cloudinary via your uploadMiddleware in req.file.path
+    if (!req.file) {
+      res.status(400);
+      throw new Error('Please upload an image');
+    }
 
-  if (!image) {
-    res.status(400);
-    throw new Error('Please upload an image');
+    const image = req.file.path; 
+
+    const slider = new Slider({
+      title,
+      image,
+      description: req.body.description || '',
+      link: req.body.link || '/'
+    });
+
+    const createdSlider = await slider.save();
+    res.status(201).json(createdSlider);
+  } catch (error) {
+    console.error("Error in createSlider:", error);
+    res.status(500).json({ message: error.message || "Internal Server Error" });
   }
-
-  const slider = new Slider({
-    title,
-    image,
-    description,
-    link,
-  });
-
-  const createdSlider = await slider.save();
-  res.status(201).json(createdSlider);
 };
 
 // @desc    Delete a slider banner
 // @route   DELETE /api/sliders/:id
 // @access  Private/Admin
 export const deleteSlider = async (req, res) => {
-  const slider = await Slider.findById(req.params.id);
+  try {
+    const slider = await Slider.findById(req.params.id);
 
-  if (slider) {
-    await slider.deleteOne();
-    res.json({ message: 'Slider removed' });
-  } else {
-    res.status(404);
-    throw new Error('Slider not found');
+    if (slider) {
+      await slider.deleteOne();
+      res.json({ message: 'Slider removed' });
+    } else {
+      res.status(404).json({ message: 'Slider not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete slider" });
   }
 };

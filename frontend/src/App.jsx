@@ -23,7 +23,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
-
+import SliderList from './pages/admin/SliderList';
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductList from './pages/admin/ProductList';
@@ -82,7 +82,9 @@ function App() {
                 <Route path="product/:id/edit" element={<EditProductScreen />} />
                 <Route path="orderlist" element={<OrderList />} />
                 <Route path="userlist" element={<UserList />} />
-                <Route path="chat" element={<AdminChat />} /> {/* <--- ROUTE ADDED HERE */}
+                <Route path="chat" element={<AdminChat />} />
+                <Route path="sliderlist" element={<SliderList />} />
+                 {/* <--- ROUTE ADDED HERE */}
               </Route>
             </Route>
 

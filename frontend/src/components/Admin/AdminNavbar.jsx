@@ -1,6 +1,16 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaBox, FaShoppingBag, FaUsers, FaSignOutAlt, FaHome, FaComments } from 'react-icons/fa'; // Added FaComments
+// Added FaImage for the Slider link
+import { 
+  FaTachometerAlt, 
+  FaBox, 
+  FaShoppingBag, 
+  FaUsers, 
+  FaSignOutAlt, 
+  FaHome, 
+  FaComments, 
+  FaImage 
+} from 'react-icons/fa'; 
 import { useAuth } from '../../context/AuthContext';
 
 const AdminNavbar = () => {
@@ -29,6 +39,13 @@ const AdminNavbar = () => {
             <FaBox className="icon" /> Products
           </Link>
         </li>
+        {/* --- Added Slider Link Below --- */}
+        <li>
+          <Link to="/admin/sliderlist">
+            <FaImage className="icon" /> Hero Banners
+          </Link>
+        </li>
+        {/* ----------------------------- */}
         <li>
           <Link to="/admin/orderlist">
             <FaShoppingBag className="icon" /> Orders
@@ -39,13 +56,11 @@ const AdminNavbar = () => {
             <FaUsers className="icon" /> Users
           </Link>
         </li>
-        {/* --- Added Chat Link Below --- */}
         <li>
           <Link to="/admin/chat">
             <FaComments className="icon" /> Support Chat
           </Link>
         </li>
-        {/* ----------------------------- */}
         <li className="divider"></li>
         <li>
           <Link to="/">
