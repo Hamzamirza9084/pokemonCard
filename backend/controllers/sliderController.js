@@ -19,17 +19,14 @@ export const createSlider = async (req, res) => {
   try {
     const { title } = req.body;
     
-    // The image URL is returned by Cloudinary via your uploadMiddleware in req.file.path
+    // IMPORTANT: CloudinaryStorage puts the URL in req.file.path
     if (!req.file) {
-      res.status(400);
-      throw new Error('Please upload an image');
+      return res.status(400).json({ message: 'Please upload an image' });
     }
-
-    const image = req.file.path; 
 
     const slider = new Slider({
       title,
-      image,
+      image: req.file.path, // This is the secure URL from Cloudinary
       description: req.body.description || '',
       link: req.body.link || '/'
     });
@@ -37,7 +34,8 @@ export const createSlider = async (req, res) => {
     const createdSlider = await slider.save();
     res.status(201).json(createdSlider);
   } catch (error) {
-    console.error("Error in createSlider:", error);
+    // This will print the actual error to your Render Logs
+    console.error("DETAILED SERVER ERROR:", error);
     res.status(500).json({ message: error.message || "Internal Server Error" });
   }
 };
@@ -48,7 +46,6 @@ export const createSlider = async (req, res) => {
 export const deleteSlider = async (req, res) => {
   try {
     const slider = await Slider.findById(req.params.id);
-
     if (slider) {
       await slider.deleteOne();
       res.json({ message: 'Slider removed' });
