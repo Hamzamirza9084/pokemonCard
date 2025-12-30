@@ -7,7 +7,7 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import http from 'http';
 import { Server } from 'socket.io';
-
+import sliderRoutes from './routes/sliderRoutes.js';
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -154,6 +154,7 @@ app.use('/products', productRoutes);
 app.use('/users', authRoutes);
 app.use('/orders', orderRoutes);
 app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
+app.use('/api/sliders', sliderRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

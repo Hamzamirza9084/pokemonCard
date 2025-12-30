@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard/ProductCard';
 
-// Helper to format URL slugs back to readable text (e.g., "pokemon-tcg" -> "Pokemon TCG")
+// Helper to format URL slugs back to readable text
 const formatCategory = (slug) => {
   if (!slug) return '';
   if (slug === 'pokemon-tcg') return 'Pokemon TCG';
@@ -34,7 +34,17 @@ const Collection = () => {
         }
         
         const { data } = await api.get(url);
-        setProducts(data);
+
+        // --- ADDED: Sort products by Created Date (Descending / Newest First) ---
+        // Checks for 'createdAt'. If missing, it falls back to '_id' (which is also time-sorted in MongoDB)
+        const sortedData = data.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+            const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+            return dateB - dateA; // Descending order
+        });
+        // -------------------------------------------------------------------------
+
+        setProducts(sortedData);
       } catch (err) {
         console.error("Failed to fetch products", err);
         setError("Could not load products.");

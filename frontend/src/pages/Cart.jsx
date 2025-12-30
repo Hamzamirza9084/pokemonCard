@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useCart } from '../context/CartContext';
-import api from '../api/axios';
+import { useCart } from '../context/CartContext'; // Adjust path if needed
+import api from '../api/axios'; // Adjust path if needed
 import { Link, useNavigate } from 'react-router-dom';
+// 1. IMPORT THE QR CODE LIBRARY
+import QRCode from "react-qr-code";
 
 const Cart = () => {
   const { cartItems, removeFromCart, clearCart, totalPrice } = useCart();
@@ -19,6 +21,13 @@ const Cart = () => {
     phone: '' 
   });
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
+
+  // --- 2. BACKEND LOGIC IN FRONTEND: Construct UPI String ---
+  // This creates the dynamic link based on the current Total Price
+  const upiID = "ammarmemon430-1@okaxis";
+  const storeName = "MyStore"; // Or your specific store name
+  const upiString = `upi://pay?pa=${upiID}&pn=${storeName}&am=${totalPrice}&cu=INR`;
+  // ---------------------------------------------------------
 
   // Handle Input Changes
   const handleInputChange = (e) => {
@@ -114,12 +123,10 @@ const Cart = () => {
                   <img src={item.image} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
                   <div>
                     <h4>{item.name}</h4>
-                    {/* Changed $ to ₹ */}
                     <p>₹{item.price} x {item.qty}</p>
                   </div>
                 </div>
                 <div>
-                  {/* Changed $ to ₹ */}
                   <span style={{ fontWeight: 'bold', marginRight: '15px' }}>₹{(item.price * item.qty).toFixed(2)}</span>
                   <button 
                     onClick={() => removeFromCart(item._id)}
@@ -209,12 +216,36 @@ const Cart = () => {
                     checked={paymentMethod === 'UPI'} 
                     onChange={(e) => setPaymentMethod(e.target.value)} 
                   />
-                  UPI
+                  UPI (Pay via QR)
                 </label>
               </div>
 
+              {/* 3. SHOW QR CODE ONLY IF UPI IS SELECTED */}
+              {paymentMethod === 'UPI' && (
+                <div style={{ 
+                    textAlign: 'center', 
+                    padding: '15px', 
+                    background: '#f9f9f9', 
+                    border: '1px dashed #ccc', 
+                    marginBottom: '20px',
+                    borderRadius: '8px'
+                }}>
+                  <p style={{marginBottom: '10px', fontWeight: 'bold'}}>Scan to pay: ₹{totalPrice}</p>
+                  <div style={{ background: 'white', padding: '10px', display: 'inline-block' }}>
+                    <QRCode 
+                        value={upiString} 
+                        size={150} 
+                        level="M" 
+                    />
+                  </div>
+                  <p style={{fontSize: '0.8rem', color: '#666', marginTop: '5px'}}>
+                    UPI ID: {upiID}
+                  </p>
+                </div>
+              )}
+              {/* -------------------------------------- */}
+
               <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-                {/* Changed $ to ₹ */}
                 <h3>Total: ₹{totalPrice}</h3>
               </div>
 

@@ -22,29 +22,47 @@ const ProductCard = ({ product }) => {
     return `${BASE_URL}${imagePath}`;
   };
 
-  return (
+ return (
     <div className="product-card">
       <div className="product-image-container">
         <img 
           src={getImgSrc(product.image)} 
           alt={product.name} 
           className="product-image"
-          // Optional: Add a fallback image if the source fails to load
           onError={(e) => { e.target.src = "https://placehold.co/300x400?text=Image+Not+Found"; }}
         />
+        {product.countInStock > 0 && product.countInStock < 5 && (
+          <span className="stock-badge low-stock">Only {product.countInStock} left!</span>
+        )}
       </div>
+
       <div className="product-info">
-        <h3 className="product-title">{product.name}</h3>
-        <p className="product-category">{product.category}</p>
+        <div className="product-header">
+          <span className="product-category">{product.category}</span>
+          <h3 className="product-title" title={product.name}>{product.name}</h3>
+        </div>
+        
+        {/* Improved Description Area */}
+        <p className="product-description" title={product.description}>
+          {product.description}
+        </p>
+
         <div className="product-bottom">
-          {/* Changed $ to ₹ */}
-          <span className="product-price">₹{product.price.toFixed(2)}</span>
+          <div className="price-tag">
+            <span className="currency">₹</span>
+            <span className="amount">{product.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          </div>
+          
           <button 
             className="add-to-cart-btn"
             onClick={() => addToCart(product)}
             disabled={product.countInStock === 0}
           >
-            {product.countInStock > 0 ? 'Add to Cart' : 'Out of Stock'}
+            {product.countInStock > 0 ? (
+              <>
+                <span className="btn-icon">+</span> Add
+              </>
+            ) : 'Sold Out'}
           </button>
         </div>
       </div>

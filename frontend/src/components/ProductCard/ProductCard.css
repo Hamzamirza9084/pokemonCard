@@ -114,3 +114,76 @@
       padding: 10px;
   }
 }
+
+/* Container for category and title */
+.product-header {
+  margin-bottom: 8px;
+}
+
+.product-category {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fca311; /* Brand color */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.product-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1a1a1a;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Keep title to 1 line for clean look */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* UX Improvement: The Description */
+.product-description {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  /* Line clamping: Shows only 2 lines then adds "..." */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.5em; /* Ensures consistent card height */
+}
+
+/* Low Stock Badge */
+.stock-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.9);
+  color: #d90429;
+  border: 1px solid #d90429;
+}
+
+/* Price Formatting */
+.price-tag {
+  display: flex;
+  align-items: baseline;
+  color: #1a1a1a;
+}
+
+.currency {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.amount {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
