@@ -1,67 +1,68 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api/axios'; 
-import { FaPlus, FaTrash } from 'react-icons/fa'; 
+import { FaPlus, FaTrash } from 'react-icons/fa';
 import './Admin.css'; 
 
 const SliderList = () => {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState("");
   const [title, setTitle] = useState('');
   const [sliders, setSliders] = useState([]);
   const [uploading, setUploading] = useState(false);
 
-  const fetchSliders = async () => {
-    try {
-      // FIX: Added /api/ prefix to match your backend server.js
-      const { data } = await api.get('/sliders'); 
-      setSliders(data);
-    } catch (err) {
-      console.error("Failed to fetch sliders", err);
+  // Load from LocalStorage on mount
+  useEffect(() => {
+    const savedSliders = JSON.parse(localStorage.getItem('frontend_sliders')) || [];
+    setSliders(savedSliders);
+  }, []);
+
+  // Convert File to Base64 String
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result); // This is the image as a string
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  useEffect(() => {
-    fetchSliders();
-  }, []);
-
-  const submitHandler = async (e) => {
+  const submitHandler = (e) => {
     e.preventDefault();
     if (!image || !title) return alert("Please provide both a title and an image");
 
-    const formData = new FormData();
-    formData.append('image', image);
-    formData.append('title', title);
+    setUploading(true);
+    
+    const newSlider = {
+      _id: Date.now().toString(),
+      title: title,
+      image: image, // Base64 string
+    };
 
-    try {
-      setUploading(true);
-      // FIX: Added /api/ prefix here as well
-      await api.post('/sliders', formData);
-      alert('Slider Added!');
-      setTitle('');
-      setImage(null);
-      fetchSliders();
-    } catch (err) {
-      alert('Upload failed');
-    } finally {
-      setUploading(false);
-    }
+    const updatedSliders = [...sliders, newSlider];
+    
+    // Save to State and LocalStorage
+    setSliders(updatedSliders);
+    localStorage.setItem('frontend_sliders', JSON.stringify(updatedSliders));
+
+    // Reset Form
+    setTitle('');
+    setImage("");
+    setUploading(false);
+    alert('Slider Added Locally!');
   };
 
-  const deleteHandler = async (id) => {
+  const deleteHandler = (id) => {
     if (window.confirm('Are you sure you want to delete this banner?')) {
-      try {
-        // FIX: Added /api/ prefix here too
-        await api.delete(`/sliders/${id}`);
-        fetchSliders();
-      } catch (err) {
-        alert('Failed to delete');
-      }
+      const filteredSliders = sliders.filter(s => s._id !== id);
+      setSliders(filteredSliders);
+      localStorage.setItem('frontend_sliders', JSON.stringify(filteredSliders));
     }
   };
 
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>Manage Hero Slider</h1>
+        <h1>Manage Hero Slider (Frontend Only)</h1>
       </div>
 
       <div className="form-container" style={{ marginBottom: '30px' }}>
@@ -80,11 +81,11 @@ const SliderList = () => {
             <input 
               type="file" 
               accept="image/*"
-              onChange={(e) => setImage(e.target.files[0])} 
+              onChange={handleFileChange} 
             />
           </div>
           <button type="submit" className="admin-btn" disabled={uploading} style={{ background: '#27ae60', width: '100%' }}>
-            <FaPlus /> {uploading ? 'Uploading...' : 'Upload Banner'}
+            <FaPlus /> {uploading ? 'Processing...' : 'Add Banner'}
           </button>
         </form>
       </div>
