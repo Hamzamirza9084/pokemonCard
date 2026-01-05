@@ -3,10 +3,10 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import './HeroSlider.css';
-import img1 from'../../../public/Images/Packs.jpeg'
-import img2 from'../../../public/Images/Boxes.jpeg'
+import img1 from'../../../public/Images/img1.png'
+import img2 from'../../../public/Images/img2.png'
 import img3 from'../../../public/Images/img3.png'
-import img4 from'../../../public/Images/Singles.jpeg'
+import img4 from'../../../public/Images/img4.png'
 import img5 from'../../../public/Images/img5.png'
 
 const HeroSlider = () => {
