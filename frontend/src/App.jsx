@@ -1,4 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import api from './api/axios';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -36,12 +38,42 @@ import AdminChat from './pages/admin/AdminChat'; // <--- IMPORT ADDED HERE
 import Collection from './pages/Collection';
 
 function App() {
+  const [isWakingUp, setIsWakingUp] = useState(true);
+
+  useEffect(() => {
+    // Ping the backend to wake up the server if it's asleep (e.g. Render free tier)
+    api.get('/api/wakeup')
+      .then(() => console.log('Server is awake!'))
+      .catch((err) => console.error('Error waking up server:', err))
+      .finally(() => setIsWakingUp(false));
+  }, []);
+
+  if (isWakingUp) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#f9fafb', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <div style={{ width: '60px', height: '60px', border: '6px solid #e5e7eb', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+        </style>
+        <h2 style={{ marginTop: '24px', color: '#111827', fontSize: '1.5rem', fontWeight: '600' }}>Waking up the server...</h2>
+        <p style={{ marginTop: '12px', color: '#4b5563', textAlign: 'center', maxWidth: '450px', lineHeight: '1.5' }}>
+          This app is hosted on a free tier. It might take up to a minute to start up on the first load. Thank you for your patience!
+        </p>
+      </div>
+    );
+  }
+
   return (
     <AuthProvider>
       <CartProvider>
         <BrowserRouter>
           {/* Add ToastContainer here to handle notifications globally */}
-          <ToastContainer 
+          <ToastContainer
             position="bottom-right"
             autoClose={2000}
             hideProgressBar={false}
@@ -53,21 +85,21 @@ function App() {
             pauseOnHover
             theme="light"
           />
-          
+
           <Routes>
             {/* --- PUBLIC ROUTES --- */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
-              
+
               {/* Note: Ensuring your new Collection routes are here based on previous memory */}
               <Route path="collection/:category" element={<Collection />} />
               <Route path="collection/:category/:subcategory" element={<Collection />} />
-              <Route path="track-order" element={<div style={{padding:'50px',textAlign:'center'}}>Track Order</div>} />
+              <Route path="track-order" element={<div style={{ padding: '50px', textAlign: 'center' }}>Track Order</div>} />
 
               {/* Fallback for old routes if still used */}
               <Route path="pokemon-tcg" element={<PokemonTCG />} />
               <Route path="supplies" element={<Supplies />} />
-              
+
               <Route path="cart" element={<Cart />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
@@ -84,7 +116,7 @@ function App() {
                 <Route path="userlist" element={<UserList />} />
                 <Route path="chat" element={<AdminChat />} />
                 <Route path="sliderlist" element={<SliderList />} />
-                 {/* <--- ROUTE ADDED HERE */}
+                {/* <--- ROUTE ADDED HERE */}
               </Route>
             </Route>
 

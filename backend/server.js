@@ -67,24 +67,24 @@ io.on('connection', (socket) => {
     if (typeof data === 'string') {
       roomId = data;
       console.log(`Admin joined room: ${roomId}`);
-    
-    // Users join by sending an object
+
+      // Users join by sending an object
     } else if (data.userId) {
       roomId = data.userId;
-      
+
       const existingUserIndex = activeUsers.findIndex((u) => u.userId === data.userId);
 
       if (existingUserIndex !== -1) {
         activeUsers[existingUserIndex].socketId = socket.id;
-        activeUsers[existingUserIndex].userName = data.userName; 
+        activeUsers[existingUserIndex].userName = data.userName;
       } else {
-        activeUsers.push({ 
-          userId: data.userId, 
-          userName: data.userName, 
-          socketId: socket.id 
+        activeUsers.push({
+          userId: data.userId,
+          userName: data.userName,
+          socketId: socket.id
         });
       }
-      
+
       io.emit('active_users', activeUsers);
       console.log(`User ${data.userName} joined room: ${roomId}`);
     }
@@ -111,7 +111,7 @@ io.on('connection', (socket) => {
       });
       await newMessage.save();
       socket.to(data.room).emit('receive_message', data);
-      
+
     } catch (error) {
       console.error("Error saving message:", error);
     }
@@ -155,6 +155,10 @@ app.use('/users', authRoutes);
 app.use('/orders', orderRoutes);
 app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
 app.use('/sliders', sliderRoutes);
+
+app.get('/api/wakeup', (req, res) => {
+  res.status(200).json({ message: 'Server is awake!' });
+});
 
 app.get('/', (req, res) => {
   res.send('API is running...');
