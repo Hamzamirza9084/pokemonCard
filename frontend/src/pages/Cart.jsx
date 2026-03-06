@@ -8,7 +8,7 @@ import QRCode from "react-qr-code";
 const Cart = () => {
   const { cartItems, removeFromCart, clearCart, totalPrice } = useCart();
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -18,15 +18,19 @@ const Cart = () => {
     city: '',
     postalCode: '',
     country: '',
-    phone: '' 
+    phone: ''
   });
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
+
+  // Calculate delivery charge based on payment method
+  const deliveryCharge = paymentMethod === 'Cash on Delivery' ? 250 : 120;
+  const finalTotalPrice = Number(totalPrice) + deliveryCharge;
 
   // --- 2. BACKEND LOGIC IN FRONTEND: Construct UPI String ---
   // This creates the dynamic link based on the current Total Price
   const upiID = "ammarmemon430-1@okaxis";
   const storeName = "MyStore"; // Or your specific store name
-  const upiString = `upi://pay?pa=${upiID}&pn=${storeName}&am=${totalPrice}&cu=INR`;
+  const upiString = `upi://pay?pa=${upiID}&pn=${storeName}&am=${finalTotalPrice}&cu=INR`;
   // ---------------------------------------------------------
 
   // Handle Input Changes
@@ -35,8 +39,8 @@ const Cart = () => {
   };
 
   const handleCheckout = async (e) => {
-    e.preventDefault(); 
-    
+    e.preventDefault();
+
     if (cartItems.length === 0) return;
 
     // Basic Form Validation (Client side)
@@ -57,11 +61,11 @@ const Cart = () => {
         })),
         shippingAddress: shippingAddress,
         paymentMethod: paymentMethod,
-        totalPrice: totalPrice,
+        totalPrice: finalTotalPrice,
       };
 
       const res = await api.post('/orders', orderPayload);
-      
+
       if (res.status === 201) {
         setSuccess(true);
         clearCart();
@@ -69,17 +73,17 @@ const Cart = () => {
 
     } catch (error) {
       console.error('Checkout failed:', error);
-      
+
       const status = error.response ? error.response.status : null;
       const message = error.response?.data?.message || '';
 
       if (status === 401) {
         alert('You must be logged in to place an order.');
         navigate('/login');
-      } 
+      }
       else if (message === 'Please update your profile with a phone number before placing an order.') {
         alert(message);
-        navigate('/profile'); 
+        navigate('/profile');
       }
       else {
         alert(message || 'Failed to place order. Please try again.');
@@ -103,21 +107,21 @@ const Cart = () => {
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Your Cart</h1>
-      
+
       {cartItems.length === 0 ? (
         <p>Your cart is empty. <Link to="/">Go Shop!</Link></p>
       ) : (
         <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
-          
+
           {/* LEFT COLUMN: Cart Items */}
           <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {cartItems.map((item) => (
-              <div key={item._id} style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                borderBottom: '1px solid #eee', 
-                padding: '15px 0' 
+              <div key={item._id} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #eee',
+                padding: '15px 0'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                   <img src={item.image} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
@@ -128,7 +132,7 @@ const Cart = () => {
                 </div>
                 <div>
                   <span style={{ fontWeight: 'bold', marginRight: '15px' }}>₹{(item.price * item.qty).toFixed(2)}</span>
-                  <button 
+                  <button
                     onClick={() => removeFromCart(item._id)}
                     style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                   >
@@ -143,54 +147,54 @@ const Cart = () => {
           <div style={{ flex: 1, border: '1px solid #ddd', padding: '20px', borderRadius: '8px', height: 'fit-content' }}>
             <h2>Shipping Details</h2>
             <form onSubmit={handleCheckout} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              
-              <input 
-                type="text" 
-                name="address" 
-                placeholder="Address" 
-                value={shippingAddress.address} 
-                onChange={handleInputChange} 
-                required 
+
+              <input
+                type="text"
+                name="address"
+                placeholder="Address"
+                value={shippingAddress.address}
+                onChange={handleInputChange}
+                required
                 style={{ padding: '10px' }}
               />
-              
+
               <div style={{ display: 'flex', gap: '10px' }}>
-                <input 
-                  type="text" 
-                  name="city" 
-                  placeholder="City" 
-                  value={shippingAddress.city} 
-                  onChange={handleInputChange} 
-                  required 
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={shippingAddress.city}
+                  onChange={handleInputChange}
+                  required
                   style={{ padding: '10px', flex: 1 }}
                 />
-                <input 
-                  type="text" 
-                  name="postalCode" 
-                  placeholder="Postal Code" 
-                  value={shippingAddress.postalCode} 
-                  onChange={handleInputChange} 
-                  required 
+                <input
+                  type="text"
+                  name="postalCode"
+                  placeholder="Postal Code"
+                  value={shippingAddress.postalCode}
+                  onChange={handleInputChange}
+                  required
                   style={{ padding: '10px', flex: 1 }}
                 />
               </div>
 
-              <input 
-                type="text" 
-                name="country" 
-                placeholder="Country" 
-                value={shippingAddress.country} 
-                onChange={handleInputChange} 
-                required 
+              <input
+                type="text"
+                name="country"
+                placeholder="Country"
+                value={shippingAddress.country}
+                onChange={handleInputChange}
+                required
                 style={{ padding: '10px' }}
               />
 
-              <input 
-                type="tel" 
-                name="phone" 
-                placeholder="Shipping Contact Number" 
-                value={shippingAddress.phone} 
-                onChange={handleInputChange} 
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Shipping Contact Number"
+                value={shippingAddress.phone}
+                onChange={handleInputChange}
                 style={{ padding: '10px' }}
               />
 
@@ -199,22 +203,22 @@ const Cart = () => {
               <h2>Payment Method</h2>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                  <input 
-                    type="radio" 
-                    value="Cash on Delivery" 
-                    checked={paymentMethod === 'Cash on Delivery'} 
-                    onChange={(e) => setPaymentMethod(e.target.value)} 
+                  <input
+                    type="radio"
+                    value="Cash on Delivery"
+                    checked={paymentMethod === 'Cash on Delivery'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                   />
                   Cash on Delivery
                 </label>
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                  <input 
-                    type="radio" 
-                    value="UPI" 
-                    checked={paymentMethod === 'UPI'} 
-                    onChange={(e) => setPaymentMethod(e.target.value)} 
+                  <input
+                    type="radio"
+                    value="UPI"
+                    checked={paymentMethod === 'UPI'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                   />
                   UPI (Pay via QR)
                 </label>
@@ -222,23 +226,23 @@ const Cart = () => {
 
               {/* 3. SHOW QR CODE ONLY IF UPI IS SELECTED */}
               {paymentMethod === 'UPI' && (
-                <div style={{ 
-                    textAlign: 'center', 
-                    padding: '15px', 
-                    background: '#f9f9f9', 
-                    border: '1px dashed #ccc', 
-                    marginBottom: '20px',
-                    borderRadius: '8px'
+                <div style={{
+                  textAlign: 'center',
+                  padding: '15px',
+                  background: '#f9f9f9',
+                  border: '1px dashed #ccc',
+                  marginBottom: '20px',
+                  borderRadius: '8px'
                 }}>
-                  <p style={{marginBottom: '10px', fontWeight: 'bold'}}>Scan to pay: ₹{totalPrice}</p>
+                  <p style={{ marginBottom: '10px', fontWeight: 'bold' }}>Scan to pay: ₹{finalTotalPrice.toFixed(2)}</p>
                   <div style={{ background: 'white', padding: '10px', display: 'inline-block' }}>
-                    <QRCode 
-                        value={upiString} 
-                        size={150} 
-                        level="M" 
+                    <QRCode
+                      value={upiString}
+                      size={150}
+                      level="M"
                     />
                   </div>
-                  <p style={{fontSize: '0.8rem', color: '#666', marginTop: '5px'}}>
+                  <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                     UPI ID: {upiID}
                   </p>
                 </div>
@@ -246,19 +250,21 @@ const Cart = () => {
               {/* -------------------------------------- */}
 
               <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-                <h3>Total: ₹{totalPrice}</h3>
+                <p style={{ margin: '5px 0' }}>Cart Total: ₹{Number(totalPrice).toFixed(2)}</p>
+                <p style={{ margin: '5px 0' }}>Delivery Charge: ₹{deliveryCharge.toFixed(2)}</p>
+                <h3>Total: ₹{finalTotalPrice.toFixed(2)}</h3>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={loading}
-                style={{ 
-                  background: '#27ae60', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '12px 24px', 
-                  fontSize: '1.1rem', 
-                  borderRadius: '4px', 
+                style={{
+                  background: '#27ae60',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 24px',
+                  fontSize: '1.1rem',
+                  borderRadius: '4px',
                   cursor: 'pointer',
                   width: '100%'
                 }}

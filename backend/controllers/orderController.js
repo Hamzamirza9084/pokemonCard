@@ -1,5 +1,5 @@
 import Order from '../models/Order.js';
-import User from '../models/User.js'; 
+import User from '../models/User.js';
 import sendOrderConfirmation from '../utils/sendEmail.js'; // <--- 1. Import this
 
 // @desc    Create new order
@@ -8,24 +8,24 @@ import sendOrderConfirmation from '../utils/sendEmail.js'; // <--- 1. Import thi
 const addOrderItems = async (req, res) => {
   try {
     const userId = req.session?.user?._id;
-    
+
     // 1. Enforce Login
     if (!userId) {
       return res.status(401).json({ message: 'Not authorized, please log in to place an order' });
     }
-    
-    const { 
-      orderItems, 
-      shippingAddress, 
-      paymentMethod, 
-      totalPrice 
+
+    const {
+      orderItems,
+      shippingAddress,
+      paymentMethod,
+      totalPrice
     } = req.body;
 
     // 2. Validate Items
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
     }
-    
+
     // 3. Validate Payment Method
     if (!paymentMethod || (paymentMethod !== 'Cash on Delivery' && paymentMethod !== 'UPI')) {
       return res.status(400).json({ message: 'Invalid payment method.' });
@@ -36,35 +36,40 @@ const addOrderItems = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     // 5. Validate Phone
     const contactPhone = user.phone || shippingAddress?.phone;
     if (!contactPhone) {
       return res.status(400).json({ message: 'Phone number is required for shipping.' });
     }
-    
+
     // 6. Validate Address
     if (!shippingAddress || !shippingAddress.address || !shippingAddress.city || !shippingAddress.postalCode || !shippingAddress.country) {
       return res.status(400).json({ message: 'Complete shipping address is required' });
     }
 
+    // Calculate delivery charge securely on backend
+    const deliveryCharge = paymentMethod === 'Cash on Delivery' ? 250 : 120;
+    const itemsPrice = orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    const calculatedTotalPrice = itemsPrice + deliveryCharge;
+
     // Construct the Order
     const order = new Order({
       orderItems: orderItems.map((x) => ({
         ...x,
-        product: x.product || x._id, 
+        product: x.product || x._id,
       })),
       user: userId,
-      shippingAddress: { 
-          address: shippingAddress.address,
-          city: shippingAddress.city,
-          postalCode: shippingAddress.postalCode,
-          country: shippingAddress.country,
-          phone: contactPhone
+      shippingAddress: {
+        address: shippingAddress.address,
+        city: shippingAddress.city,
+        postalCode: shippingAddress.postalCode,
+        country: shippingAddress.country,
+        phone: contactPhone
       },
-      paymentMethod: paymentMethod, 
-      totalPrice: Number(totalPrice),
-      isPaid: paymentMethod === 'UPI', 
+      paymentMethod: paymentMethod,
+      totalPrice: calculatedTotalPrice,
+      isPaid: paymentMethod === 'UPI',
       paidAt: paymentMethod === 'UPI' ? new Date() : null,
     });
 
@@ -74,14 +79,14 @@ const addOrderItems = async (req, res) => {
     // We pass user.email (from DB) and the createdOrder object
     if (user.email) {
       // We don't await this so the UI response isn't delayed by email sending
-      sendOrderConfirmation(user.email, createdOrder); 
+      sendOrderConfirmation(user.email, createdOrder);
     }
     // ----------------------------------
 
     res.status(201).json(createdOrder);
 
   } catch (error) {
-    console.error("Create Order Error:", error); 
+    console.error("Create Order Error:", error);
     res.status(500).json({ message: error.message || 'Failed to create order' });
   }
 };
@@ -124,7 +129,7 @@ const getOrderStats = async (req, res) => {
 
   try {
     const data = await Order.aggregate([
-      { $match: { createdAt: { $gte: lastYear } } }, 
+      { $match: { createdAt: { $gte: lastYear } } },
       {
         $project: {
           month: { $month: "$createdAt" },
